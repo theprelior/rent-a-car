@@ -1,5 +1,11 @@
 import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { carRouter } from "~/server/api/routers/car"; // <--- 1. ADIM: carRouter'ı import et
+import { locationRouter } from "~/server/api/routers/location"; // <-- 1. Import et
+import { contactRouter } from "~/server/api/routers/contact"; // <-- 1. Import et
+import { bookingRouter } from "~/server/api/routers/booking"; // <-- 1. Import et
+import { userRouter } from "~/server/api/routers/user"; // <-- Import et
+import { authRouter } from "~/server/api/routers/auth"; // <-- Import et
 
 /**
  * This is the primary router for your server.
@@ -7,7 +13,13 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
+  //post: postRouter,
+  car: carRouter,
+  location: locationRouter,
+  contact: contactRouter, // <-- 2. Buraya ekle
+  booking: bookingRouter, // <-- 2. Buraya ekle
+  user: userRouter, // <-- Buraya ekle
+  auth: authRouter,
 });
 
 // export type definition of API

@@ -1,69 +1,104 @@
-import Link from "next/link";
+// app/page.tsx
 
-import { LatestPost } from "~/app/_components/post";
-import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
+import { FeaturedCars } from "./_components/FeaturedCars";
+import { api } from "~/trpc/server";
+import { CarSearchForm } from "./_components/CarSearchForm";
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await auth();
+const IconMapPin = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24" height="24"
+    viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2"
+    strokeLinecap="round" strokeLinejoin="round"
+    className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500"
+  >
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
 
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
-  }
+const IconCalendar = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24" height="24"
+    viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2"
+    strokeLinecap="round" strokeLinejoin="round"
+    className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500"
+  >
+    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+    <line x1="16" x2="16" y1="2" y2="6" />
+    <line x1="8" x2="8" y1="2" y2="6" />
+    <line x1="3" x2="21" y1="10" y2="10" />
+  </svg>
+);
+
+type HomePageProps = {
+  searchParams: {
+    locationId?: string;
+    startDate?: string;
+    endDate?: string;
+  };
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const locationId = searchParams.locationId ? parseInt(searchParams.locationId, 10) : undefined;
+  const startDate = searchParams.startDate ? new Date(searchParams.startDate) : undefined;
+  const endDate = searchParams.endDate ? new Date(searchParams.endDate) : undefined;
+
+  const cars = await api.car.getAll({
+    locationId,
+    startDate,
+    endDate,
+  });
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
+    <main className="bg-black text-white">
+      {/* Hero Section */}
+      <section
+        className="relative flex h-[70vh] min-h-[500px] items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/background.png')" }}
+      >
+        <div className="absolute inset-0 bg-black/70"></div>
+
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <h1 className="animate-fade-in-down text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            Hayalinizdeki Sürüşe{" "}
+            <span className="bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-600 bg-clip-text text-transparent animate-shine">
+              Bir Adım
+            </span>
+            {" "}Uzaklıktasınız
           </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-300">
+            Geniş araç filomuzdan dilediğinizi seçin, güvenli ve konforlu yolculuğun tadını çıkarın.
+          </p>
 
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
-              </p>
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                {session ? "Sign out" : "Sign in"}
-              </Link>
-            </div>
+          {/* Arama formu */}
+          <div className="mt-8">
+            <CarSearchForm />
           </div>
-
-          {session?.user && <LatestPost />}
         </div>
-      </main>
-    </HydrateClient>
+      </section>
+
+      {/* Öne Çıkan Araçlar */}
+      <section
+        className="relative z-10 py-16 bg-cover bg-center"
+        style={{ backgroundImage: "url('/banner_Background.png')" }}
+      >
+        <div className="relative container mx-auto px-4">
+          {/*<h2 className="mb-10 text-center text-3xl font-bold tracking-wide text-yellow-500 drop-shadow-lg">
+            Öne Çıkan Araçlar
+          </h2>*/}
+          <h2 className="text-3xl text-center font-extrabold tracking-tight text-white sm:text-4xl">
+              Öne Çıkan Araçlarımız
+            </h2>
+            <p className="mb-10 text-center text-xl tracking-wide drop-shadow-lg text-gray-400">
+              Her ihtiyaca ve bütçeye uygun, popüler araçlarımızı keşfedin.
+            </p>
+          <FeaturedCars cars={cars} />
+        </div>
+      </section>
+    </main>
   );
 }
