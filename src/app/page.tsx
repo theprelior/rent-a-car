@@ -58,7 +58,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <main className="bg-black text-white">
       {/* Hero Section */}
       <section
-        className="relative flex h-screen min-h-[700px] flex-col items-center justify-center bg-cover bg-center"
+  className="relative flex min-h-[500px] md:min-h-[600px] flex-col items-center justify-center bg-cover bg-center py-20"
         style={{ backgroundImage: "url('/background.png')" }}
       >
         <div className="absolute inset-0 bg-black/70"></div>

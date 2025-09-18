@@ -19,7 +19,7 @@ type CarCardProps = {
 };
 export function CarCard({ car }: CarCardProps) {
   return (
-    <div className="w-96 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800 shadow-xl snap-start transition-transform duration-300 hover:scale-105">
+<div className="w-72 sm:w-80 md:w-96 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800 shadow-xl snap-start transition-transform duration-300 hover:scale-105">
       {/* Resim */}
       <div className="relative h-56 w-full">
         <Image

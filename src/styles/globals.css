@@ -32,8 +32,20 @@
   display: flex;
 }
 .embla__slide {
-  flex: 0 0 auto;
-  min-width: 0;
+  flex: 0 0 85%; /* mobilde %85 genişlik */
+
+}
+
+@media (min-width: 640px) {
+  .embla__slide {
+    flex: 0 0 50%; /* tablet */
+  }
+}
+
+@media (min-width: 1024px) {
+  .embla__slide {
+    flex: 0 0 33.333%; /* desktop: 3 kart yan yana */
+  }
 }
 
 /* src/styles/globals.css */

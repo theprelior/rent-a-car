@@ -11,8 +11,8 @@ import type { EmblaOptionsType, EmblaCarouselType } from 'embla-carousel'
 import Autoplay from 'embla-carousel-autoplay'
 
 // Ok ikonları
-const IconChevronLeft = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> );
-const IconChevronRight = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg> );
+const IconChevronLeft = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>);
+const IconChevronRight = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>);
 
 type PropType = {
   cars: Car[];
@@ -21,10 +21,10 @@ type PropType = {
 
 export function FeaturedCars({ cars, options }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { ...options, loop: true }, 
+    { ...options, loop: true },
     [Autoplay({ delay: 4000, stopOnInteraction: false })]
   );
-  
+
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
 
@@ -50,17 +50,17 @@ export function FeaturedCars({ cars, options }: PropType) {
           <div>
           </div>
           <div className="hidden md:flex gap-4">
-              <button onClick={scrollPrev} disabled={prevBtnDisabled} className="rounded-full p-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50">
-                  <IconChevronLeft />
-              </button>
-              <button onClick={scrollNext} disabled={nextBtnDisabled} className="rounded-full p-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50">
-                  <IconChevronRight />
-              </button>
+            <button onClick={scrollPrev} disabled={prevBtnDisabled} className="rounded-full p-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50">
+              <IconChevronLeft />
+            </button>
+            <button onClick={scrollNext} disabled={nextBtnDisabled} className="rounded-full p-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50">
+              <IconChevronRight />
+            </button>
           </div>
         </div>
-        
+
         <div className="embla" ref={emblaRef}>
-          <div className="embla__container">
+          <div className="embla__container gap-4">
             {cars.map((car) => {
               const plainCar: PlainCar = {
                 ...car,
@@ -70,7 +70,7 @@ export function FeaturedCars({ cars, options }: PropType) {
               };
               return (
                 <div key={car.id} className="embla__slide p-4">
-                    <CarCard car={plainCar} />
+                  <CarCard car={plainCar} />
                 </div>
               );
             })}
