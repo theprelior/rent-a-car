@@ -3,6 +3,7 @@
 import { FeaturedCars } from "./_components/FeaturedCars";
 import { api } from "~/trpc/server";
 import { CarSearchForm } from "./_components/CarSearchForm";
+import { AnimatedHeroText } from "./_components/AnimatedHeroText"; // Yeni bileşeni import ediyoruz
 
 const IconMapPin = () => (
   <svg
@@ -57,45 +58,40 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <main className="bg-black text-white">
       {/* Hero Section */}
       <section
-        className="relative flex h-[70vh] min-h-[500px] items-center justify-center bg-cover bg-center"
+        className="relative flex h-screen min-h-[700px] flex-col items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: "url('/background.png')" }}
       >
         <div className="absolute inset-0 bg-black/70"></div>
 
-        <div className="container relative z-10 mx-auto px-4 text-center">
-          <h1 className="animate-fade-in-down text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            Hayalinizdeki Sürüşe{" "}
-            <span className="bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-600 bg-clip-text text-transparent animate-shine">
-              Bir Adım
-            </span>
-            {" "}Uzaklıktasınız
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-300">
-            Geniş araç filomuzdan dilediğinizi seçin, güvenli ve konforlu yolculuğun tadını çıkarın.
-          </p>
+        <div className="container relative z-10 mx-auto flex flex-grow flex-col items-center justify-center px-4 text-center">
 
-          {/* Arama formu */}
-          <div className="mt-8">
-            <CarSearchForm />
+          <div className="container relative z-10 mx-auto flex flex-grow flex-col items-center justify-center px-4 text-center">
+
+            {/* GÜNCELLEME: Eski metinlerin tamamı yerine yeni animasyonlu bileşeni koyduk */}
+            <AnimatedHeroText />
+
           </div>
+
+        </div>
+
+        {/* Arama formunu Hero'nun altına, ayrı bir bölüme taşıdık */}
+        <div className="relative z-10 w-full -mb-24 px-4">
+          <CarSearchForm />
         </div>
       </section>
 
-      {/* Öne Çıkan Araçlar */}
+      {/* Öne Çıkan Araçlar (Arama formundan sonra başlaması için üstten boşluk ekledik) */}
       <section
-        className="relative z-10 py-16 bg-cover bg-center"
+        className="relative z-0 pt-32 pb-16 bg-cover bg-center" // pt-32 ile boşluk eklendi
         style={{ backgroundImage: "url('/banner_Background.png')" }}
       >
         <div className="relative container mx-auto px-4">
-          {/*<h2 className="mb-10 text-center text-3xl font-bold tracking-wide text-yellow-500 drop-shadow-lg">
-            Öne Çıkan Araçlar
-          </h2>*/}
           <h2 className="text-3xl text-center font-extrabold tracking-tight text-white sm:text-4xl">
-              Öne Çıkan Araçlarımız
-            </h2>
-            <p className="mb-10 text-center text-xl tracking-wide drop-shadow-lg text-gray-400">
-              Her ihtiyaca ve bütçeye uygun, popüler araçlarımızı keşfedin.
-            </p>
+            Öne Çıkan Araçlarımız
+          </h2>
+          <p className="mb-10 text-center text-xl tracking-wide drop-shadow-lg text-gray-400">
+            Her ihtiyaca ve bütçeye uygun, popüler araçlarımızı keşfedin.
+          </p>
           <FeaturedCars cars={cars} />
         </div>
       </section>
