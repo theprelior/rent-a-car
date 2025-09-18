@@ -4,11 +4,9 @@ import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 import { AddCarForm } from "~/app/_components/AddCarForm";
 
-type EditCarPageProps = {
-  params: { id: string; };
-};
-
-export default async function EditCarPage({ params }: EditCarPageProps) {
+// Kendi tip tanımımızı (EditCarPageProps) kaldırdık.
+// Tipi doğrudan fonksiyonun içinde belirtiyoruz.
+export default async function EditCarPage({ params }: { params: { id: string } }) {
   let carId: bigint;
   try {
     carId = BigInt(params.id);
@@ -22,18 +20,16 @@ export default async function EditCarPage({ params }: EditCarPageProps) {
     return notFound();
   }
 
-  // Decimal objelerini string'e çevirerek "plain" bir obje oluşturuyoruz
-  // Bu, Server -> Client bileşenine veri aktarımı için zorunludur
+  // Sunucudan İstemciye gönderilecek veri için "plain" obje oluşturuyoruz
   const plainCar = {
       ...car,
-      id: car.id.toString(), // BigInt -> String
+      id: car.id.toString(),
       fiyat: car.fiyat?.toString() ?? null,
       motorHacmi: car.motorHacmi?.toString() ?? null,
   };
 
   return (
     <div>
-      {/* AddCarForm'u 'initialData' prop'u ile çağırarak düzenleme modunda açıyoruz */}
       <AddCarForm initialData={plainCar} />
     </div>
   );

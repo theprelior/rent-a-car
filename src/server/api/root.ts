@@ -1,4 +1,3 @@
-import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { carRouter } from "~/server/api/routers/car"; // <--- 1. ADIM: carRouter'ı import et
 import { locationRouter } from "~/server/api/routers/location"; // <-- 1. Import et

@@ -5,7 +5,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { type Car } from "@prisma/client";
 import { CarCard, type PlainCar } from "./CarCard";
-import useEmblaCarousel, { type EmblaCarouselType, type EmblaOptionsType } from 'embla-carousel-react'
+
+import useEmblaCarousel from 'embla-carousel-react'
+import type { EmblaOptionsType, EmblaCarouselType } from 'embla-carousel'
 import Autoplay from 'embla-carousel-autoplay'
 
 // Ok ikonları
@@ -18,7 +20,6 @@ type PropType = {
 };
 
 export function FeaturedCars({ cars, options }: PropType) {
-  // Embla Carousel hook'unu otomatik oynatma eklentisiyle birlikte başlatıyoruz
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { ...options, loop: true }, 
     [Autoplay({ delay: 4000, stopOnInteraction: false })]
@@ -27,11 +28,9 @@ export function FeaturedCars({ cars, options }: PropType) {
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
 
-  // Geri ve ileri gitme fonksiyonları
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
-  // Butonların aktif/pasif durumunu kontrol etmek için
   const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
     setPrevBtnDisabled(!emblaApi.canScrollPrev())
     setNextBtnDisabled(!emblaApi.canScrollNext())
@@ -45,13 +44,11 @@ export function FeaturedCars({ cars, options }: PropType) {
   }, [emblaApi, onSelect]);
 
   return (
-<section className="bg-transparent py-16 sm:py-24">
+    <section className="bg-transparent py-16 sm:py-24">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <div>
-            
           </div>
-          {/* Navigasyon Okları */}
           <div className="hidden md:flex gap-4">
               <button onClick={scrollPrev} disabled={prevBtnDisabled} className="rounded-full p-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50">
                   <IconChevronLeft />
@@ -62,7 +59,6 @@ export function FeaturedCars({ cars, options }: PropType) {
           </div>
         </div>
         
-        {/* Embla Carousel Viewport */}
         <div className="embla" ref={emblaRef}>
           <div className="embla__container">
             {cars.map((car) => {

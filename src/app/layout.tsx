@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google"; // DEĞİŞİKLİK 1: Geist -> 
 import { NextAuthProvider } from "./_components/NextAuthProvider";
 import { Navbar } from "./_components/Navbar";
 import { TRPCReactProvider } from "~/trpc/react";
@@ -14,9 +14,9 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-sans", // Değişken adını daha standart hale getirdik
 });
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     // <html> etiketine suppressHydrationWarning ekliyoruz
-    <html lang="tr" className={`${geist.variable}`} suppressHydrationWarning>
+    <html lang="tr" className={`${inter.variable}`} suppressHydrationWarning>
       <body className="pt-16"> 
         <TRPCReactProvider>
           <NextAuthProvider>
