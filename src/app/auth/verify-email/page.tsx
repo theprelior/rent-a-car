@@ -1,16 +1,21 @@
-// app/auth/verify-email/page.tsx dosyasının geçici içeriği
+import { Suspense } from 'react';
+import { VerifyEmailContent } from './VerifyEmailContent';
 
-import { cookies } from 'next/headers'
+// Yükleme sırasında gösterilecek olan basit bir bileşen
+function LoadingFallback() {
+    return (
+        <div className="w-full max-w-md rounded-lg bg-neutral-900 p-8 text-center shadow-lg">
+            <p className="text-xl text-gray-300">Yükleniyor...</p>
+        </div>
+    );
+}
 
-// Bu sayfa dinamik olduğu için bir export default async function olamaz
 export default function VerifyEmailPage() {
-  // Bu fonksiyonu çağırmak, Next.js'e bu sayfanın dinamik olduğunu anlatır.
-  cookies() 
-  
   return (
-    <div>
-      <h1>Doğrulama Test Sayfası</h1>
-      <p>Eğer bu sayfayı görüyorsan, build başarılı oldu demektir.</p>
-    </div>
-  )
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
+        <Suspense fallback={<LoadingFallback />}>
+            <VerifyEmailContent />
+        </Suspense>
+    </main>
+  );
 }
