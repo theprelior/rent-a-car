@@ -39,7 +39,20 @@ const createVerificationEmailHtml = ({ userName, verificationLink }: { userName:
       <div class="content">
         <p>Merhaba ${userName},</p>
         <p>RENTORA'ya kaydolduğun için teşekkürler. Hesabını doğrulamak ve kullanmaya başlamak için lütfen aşağıdaki butona tıkla.</p>
-        <a href="${verificationLink}" class="button">E-postamı Doğrula</a>
+        <a href="${verificationLink}" style="
+          display: block;
+          width: 200px;
+          margin: 20px auto;
+          padding: 15px;
+          background-color: #f5b50a;
+          color: #000000;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: bold;
+        ">
+          E-postamı Doğrula
+        </a>
         <p>Eğer bu butona tıklayamıyorsan, aşağıdaki linki kopyalayıp tarayıcına yapıştırabilirsin:</p>
         <a href="${verificationLink}" class="link">${verificationLink}</a>
       </div>
@@ -214,7 +227,7 @@ export const userRouter = createTRPCRouter({
     });
 
     const verificationLink = `${env.NEXTAUTH_URL}/auth/verify-email?token=${verificationToken}`;
-    
+
     const emailHtml = createVerificationEmailHtml({ userName: name!, verificationLink });
 
 
@@ -228,8 +241,8 @@ export const userRouter = createTRPCRouter({
     } catch (error) {
       console.error("Yeniden gönderim hatası:", error);
       throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Doğrulama e-postası gönderilemedi.',
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Doğrulama e-postası gönderilemedi.',
       });
     }
 
