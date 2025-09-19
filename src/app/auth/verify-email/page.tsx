@@ -4,7 +4,9 @@ import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { api } from '~/trpc/react';
 import Link from 'next/link';
-import { Suspense } from "react";
+
+
+export const dynamic = 'force-dynamic';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -15,7 +17,7 @@ export default function VerifyEmailPage() {
     onSuccess: () => {
       // 3 saniye sonra giriş sayfasına yönlendir
       setTimeout(() => {
-        router.push('/');
+        router.push('/'); 
       }, 3000);
     },
   });
@@ -55,14 +57,10 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <Suspense fallback={<div className="text-white">Loading...</div>}>
-
-      <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
-        <div className="w-full max-w-md rounded-lg bg-neutral-900 p-8 text-center shadow-lg">
-          {renderContent()}
-        </div>
-      </main>
-    </Suspense>
-
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
+      <div className="w-full max-w-md rounded-lg bg-neutral-900 p-8 text-center shadow-lg">
+        {renderContent()}
+      </div>
+    </main>
   );
 }
