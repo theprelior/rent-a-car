@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth"; // <--- 1. DEĞİŞİKLİK
 import { db } from "~/server/db";
+import { Role } from "@prisma/client"; // Role enum'ını import et
 
 /**
  * 1. CONTEXT
@@ -131,3 +132,30 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+  // ---------------- YENİ BÖLÜM ------------------
+
+/**
+ * Bu, kullanıcının oturum açtığını VE rolünün 'ADMIN' olduğunu doğrulayan
+ * bir middleware (ara yazılım)'dır.
+ */
+const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
+  // Eğer session yoksa veya kullanıcının rolü ADMIN değilse, yetkisiz hatası fırlat.
+  if (!ctx.session?.user || ctx.session.user.role !== Role.ADMIN) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Bu işlem için admin yetkisi gereklidir." });
+  }
+  
+  // Yetkilendirme başarılıysa, işleme devam et.
+  return next({
+    ctx: {
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+/**
+ * Admin Procedure
+ * Sadece ADMIN rolüne sahip kullanıcıların erişebileceği procedure.
+ * Artık admin yetkisi gerektiren her yerde bunu kullanacağız.
+ */
+export const adminProcedure = t.procedure.use(enforceUserIsAdmin);

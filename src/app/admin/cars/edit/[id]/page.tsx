@@ -22,10 +22,17 @@ export default async function EditCarPage({ params }: { params: { id: string } }
 
   // Sunucudan İstemciye gönderilecek veri için "plain" obje oluşturuyoruz
   const plainCar = {
-      ...car,
-      id: car.id.toString(),
-      fiyat: car.fiyat?.toString() ?? null,
-      motorHacmi: car.motorHacmi?.toString() ?? null,
+    ...car,
+    id: car.id.toString(),
+    motorHacmi: car.motorHacmi?.toString() ?? null,
+    basePrice: car.basePrice.toString(),
+    pricingTiers: car.pricingTiers.map(tier => ({
+      ...tier,
+      minDays: tier.minDays.toString(),
+      maxDays: tier.maxDays.toString(),
+      dailyRate: Number(tier.dailyRate).toString(),
+      carId: tier.carId.toString(),
+    })),
   };
 
   return (

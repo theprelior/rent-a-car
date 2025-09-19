@@ -1,28 +1,30 @@
-// app/admin/layout.tsx
 
+//app/admin/layout.tsx
 import { redirect } from "next/navigation";
 import { getServerAuthSession } from "~/server/auth";
-import { AdminSidebar } from "../_components/AdminSidebar"; // Birazdan oluşturacağız
+import { AdminSidebar } from "../_components/AdminSidebar";
+import { Role } from "@prisma/client"; // <-- 1. ADIM: Role enum'ını import et
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Bu layout'un altındaki tüm sayfalar için session kontrolü yapıyoruz.
   const session = await getServerAuthSession();
-  if (!session || session.user?.role !== "admin") {
-    redirect("/admin/login");
-  }
+
+if (!session || session.user?.role !== Role.ADMIN) {
+  redirect("/"); // VEYA redirect("/");
+}
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      {/* Sol Dikey Menü (Sidebar) */}
+      {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Sağ İçerik Alanı */}
-      <main className="flex-grow p-4 sm:p-8">
-        {children}
+      {/* Main content */}
+      <main className="flex-grow p-6 sm:p-8 bg-gray-900">
+        {/* Opsiyonel: admin panel için üstte boş bir çizgi olmasın diye padding ayarları */}
+        <div className="w-full min-h-screen">{children}</div>
       </main>
     </div>
   );

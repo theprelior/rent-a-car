@@ -27,12 +27,20 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
   }
 
   // Decimal objelerini string'e çevirerek "plain" bir obje oluşturuyoruz
+  // DÜZELTME: Tüm özel tipleri string'e çeviriyoruz.
   const plainCar = {
-      ...car,
-      id: car.id.toString(),
-      fiyat: car.fiyat?.toString() ?? null,
-      motorHacmi: car.motorHacmi?.toString() ?? null,
+    ...car,
+    id: car.id.toString(),
+    motorHacmi: car.motorHacmi?.toString() ?? null,
+    basePrice: car.basePrice.toString(),
+    locationId: car.locationId?.toString() ?? null,
+    pricingTiers: car.pricingTiers.map(tier => ({
+      ...tier,
+      minDays: tier.minDays.toString(),
+      maxDays: tier.maxDays.toString(),
+      dailyRate: Number(tier.dailyRate).toString(),
+      carId: tier.carId.toString(),
+    })),
   };
-
   return <CarDetailView car={plainCar} locations={locations} />;
 }

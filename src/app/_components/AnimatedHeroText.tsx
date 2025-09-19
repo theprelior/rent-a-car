@@ -3,60 +3,105 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+
+// YENİ: Daha şık bir tekerlek için özel SVG ikonu
+const IconWheel = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 100 100"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    stroke="currentColor"
+    strokeWidth="6"
+  >
+    <circle cx="50" cy="50" r="45" />
+    <circle cx="50" cy="50" r="12" />
+    <line x1="50" y1="15" x2="50" y2="38" />
+    <line x1="50" y1="62" x2="50" y2="85" />
+    <line x1="80.31" y1="34.5" x2="62.5" y2="43.25" />
+    <line x1="37.5" y1="56.75" x2="19.69" y2="65.5" />
+    <line x1="19.69" y1="34.5" x2="37.5" y2="43.25" />
+    <line x1="62.5" y1="56.75" x2="80.31" y2="65.5" />
+  </svg>
+);
+
 
 export function AnimatedHeroText() {
-  // Animasyonun hangi aşamada olduğunu takip etmek için bir state
-  // 0: başlangıç (her şey gizli)
-  // 1: karşılama metni görünür
-  // 2: karşılama metni gizli, ana slogan görünür
   const [animationStage, setAnimationStage] = useState(0);
 
   useEffect(() => {
-    // Component yüklendikten kısa bir süre sonra ilk aşamayı başlat
     const timer1 = setTimeout(() => {
       setAnimationStage(1);
-    }, 500); // 0.5 saniye bekle
+    }, 500);
 
-    // Belirli bir süre sonra ikinci aşamaya geç
     const timer2 = setTimeout(() => {
       setAnimationStage(2);
-    }, 3000); // Toplam 3 saniye sonra (karşılama metni yaklaşık 2.5 sn görünür kalacak)
+    }, 4000); // RENTORA yazısı 3.5 saniye ekranda kalacak
 
-    // Component unmount olduğunda timer'ları temizle
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
-  }, []); // Bu effect sadece component ilk yüklendiğinde bir kez çalışır
+  }, []);
+
+  const container = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  };
+
+  const letter = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   return (
-    <div className="max-w-4xl h-48 flex flex-col justify-center items-center"> {/* Yüksekliği sabitleyerek kaymayı önlüyoruz */}
+<div className="relative flex h-48 w-full flex-col items-center justify-center text-center">
       
-      {/* Aşama 1: Karşılama Metni */}
-      <div 
-        className={`transition-opacity duration-1000 ${
-          animationStage === 1 ? 'opacity-100' : 'opacity-0'
-        }`}
+      {/* Aşama 1: RENTORA animasyonu */}
+      <motion.div
+        // DÜZELTME: `items-center` ile dikey hizalamayı sağlıyoruz
+        className="absolute flex items-center space-x-1 text-6xl font-extrabold text-white md:text-8xl"
+        variants={container}
+        initial="hidden"
+        animate={animationStage === 1 ? "visible" : "hidden"}
       >
-        <p className="text-lg text-gray-300 md:text-xl">
-          Ayrıcalıklı bir sürüş deneyimine hoş geldiniz.
-        </p>
-      </div>
-      
-      {/* Aşama 2: Ana Slogan ve Marka */}
-      <div 
-        className={`absolute transition-opacity duration-1000 ${
-            animationStage === 2 ? 'opacity-100' : 'opacity-0'
-        }`}
+        {"RENTORA".split("").map((char, i) => (
+          <motion.span key={i} variants={letter}>
+            {char === "O" ? (
+              <motion.span
+                className="inline-block"
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              >
+                {/* DÜZELTME: Yeni tekerlek ikonunu ve stilini kullanıyoruz */}
+                <IconWheel className="h-14 w-14 text-yellow-500 md:h-20 md:w-20" />
+              </motion.span>
+            ) : (
+              // Harflerin dikeyde hizalanması için bir kapsayıcı
+              <span className="pt-2">{char}</span>
+            )}
+          </motion.span>
+        ))}
+      </motion.div>
+
+      {/* Aşama 2: Yola Çık */}
+      <motion.div
+        className="absolute text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: animationStage === 2 ? 1 : 0 }}
+        transition={{ duration: 1.0 }}
       >
         <h1 className="text-5xl font-extrabold tracking-tighter text-white md:text-8xl">
-          Yola Çık, <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">Yol Açık</span>
+          Yola Çık,{" "}
+          <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+            Yol Açık
+          </span>
         </h1>
-        <h2 className="mt-2 text-4xl font-bold tracking-widest text-gray-400 md:text-5xl">
-          RENTORA
-        </h2>
-      </div>
-
+      </motion.div>
     </div>
   );
 }

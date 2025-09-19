@@ -5,8 +5,9 @@ import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
+  adminProcedure
 } from "~/server/api/trpc";
-import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Prisma } from "@prisma/client";
+import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Prisma, type PricingTier } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 
 export const carRouter = createTRPCRouter({
@@ -35,23 +36,42 @@ export const carRouter = createTRPCRouter({
       }
       return ctx.db.car.findMany({
         where: whereClause,
+        include: {
+          pricingTiers: true, // 👈 fiyat aralıklarını da getir
+          location: true,     // 👈 eğer lokasyonu da göstermek istiyorsan
+        },
       });
     }),
 
   getById: publicProcedure
-    .input(z.object({ id: z.bigint() }))
-    .query(async ({ ctx, input }) => {
-      const car = await ctx.db.car.findUnique({
-        where: { id: input.id },
-        include: { location: true },
-      });
-      if (!car) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      return car;
-    }),
+  .input(z.object({ id: z.bigint() }))
+  .query(async ({ ctx, input }) => {
+    const car = await ctx.db.car.findUnique({
+      where: { id: input.id },
+      include: {
+        location: true,
+        pricingTiers: true,
+      },
+    });
 
-  create: protectedProcedure
+    if (!car) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+
+    // Decimal -> number dönüşümü
+    const pricingTiers = car.pricingTiers.map(t => ({
+      ...t,
+      dailyRate: Number(t.dailyRate),
+    }));
+
+    return {
+      ...car,
+      pricingTiers,
+    };
+  }),
+
+
+  create: adminProcedure
     .input(
       z.object({
         marka: z.string().min(1, "Marka boş olamaz"),
@@ -68,27 +88,42 @@ export const carRouter = createTRPCRouter({
         cekisTipi: z.nativeEnum(CekisTipi).optional(),
         plaka: z.string().optional(),
         sasiNo: z.string().min(1, "Şasi Numarası zorunludur"),
-        fiyat: z.number().optional(),
+        // Fiyat aralıkları için yeni alan
+        basePrice: z.number().min(0, "Fiyat negatif olamaz."), // <-- YENİ ALAN
+
+        pricingTiers: z.array(z.object({
+          minDays: z.number().int().min(1),
+          maxDays: z.number().int().min(1),
+          dailyRate: z.number().min(0),
+        })).min(1, "En az bir fiyat aralığı eklemelisiniz."),
+
         kilometre: z.number().int().optional(),
         durum: z.nativeEnum(Durum).optional(),
         donanimPaketi: z.string().optional(),
         ekstraOzellikler: z.array(z.string()).optional(),
-        imageUrl: z.string().optional(),
-        locationId: z.number().int().optional(), 
+        imageUrl: z.string().nullish(), // .optional() yerine .nullish() kullanıyoruz
+
+        locationId: z.number().int().optional(),
       })
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const { pricingTiers, ...carData } = input;
+
       return ctx.db.car.create({
-        data: input,
+        data: {
+          ...carData,
+          pricingTiers: {
+            create: pricingTiers, // İlişkili fiyat aralıklarını da aynı anda oluştur
+          },
+        },
       });
     }),
 
   // DÜZELTİLMİŞ UPDATE PROSEDÜRÜ
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
-        id: z.bigint(), // <-- 1. DÜZELTME: ID alanı eklendi (zorunlu)
-        // Diğer tüm alanlar opsiyonel, çünkü sadece bir tanesi bile güncellenebilir
+        id: z.bigint(),
         marka: z.string().min(1).optional(),
         model: z.string().min(1).optional(),
         yil: z.number().int().min(1900).max(new Date().getFullYear() + 1).optional(),
@@ -103,20 +138,78 @@ export const carRouter = createTRPCRouter({
         cekisTipi: z.nativeEnum(CekisTipi).optional(),
         plaka: z.string().optional(),
         sasiNo: z.string().min(1).optional(),
-        fiyat: z.number().optional(),
+        basePrice: z.number().min(0).optional(), // <-- YENİ ALAN (opsiyonel)
+
+        pricingTiers: z.array(z.object({
+          minDays: z.number().int().min(1),
+          maxDays: z.number().int().min(1),
+          dailyRate: z.number().min(0),
+        })).optional(),
         kilometre: z.number().int().optional(),
         durum: z.nativeEnum(Durum).optional(),
         donanimPaketi: z.string().optional(),
         ekstraOzellikler: z.array(z.string()).optional(),
-        imageUrl: z.string().optional(),
+        imageUrl: z.string().nullish(),
         locationId: z.number().int().optional(),
       })
     )
-    .mutation(({ ctx, input }) => {
-      const { id, ...dataToUpdate } = input;
-      return ctx.db.car.update({
-        where: { id },
-        data: dataToUpdate,
+    .mutation(async ({ ctx, input }) => {
+      const { id, pricingTiers, ...carData } = input;
+
+      return ctx.db.$transaction(async (prisma) => {
+        // 1. Araç bilgilerini güncelle
+        await prisma.car.update({
+          where: { id },
+          data: carData,
+        });
+
+        // 2. pricingTiers varsa, eskileri silip yenilerini ekle
+        if (pricingTiers) {
+          await prisma.pricingTier.deleteMany({
+            where: { carId: id },
+          });
+
+          await prisma.pricingTier.createMany({
+            data: pricingTiers.map((tier) => ({ ...tier, carId: id })),
+          });
+        }
+
+        // 3. Güncel araç + fiyat aralıklarını geri döndür
+        return prisma.car.findUnique({
+          where: { id },
+          include: {
+            pricingTiers: true,
+            location: true,
+          },
+        });
       });
+    }),
+
+
+  // YENİ: ID'ye göre bir aracı silen procedure
+  delete: adminProcedure
+    .input(z.object({ id: z.bigint() })) // Car ID'si bigint olduğu için
+    .mutation(async ({ ctx, input }) => {
+      // ÖNEMLİ: Bir aracı silmeden önce, o araca ait aktif
+      // bir rezervasyon olup olmadığını kontrol etmek iyi bir fikirdir.
+      // Şimdilik bu kontrolü atlayıp direkt silme işlemini yapıyoruz.
+      // İstersen daha sonra bu kontrolü ekleyebiliriz.
+
+      const carToDelete = await ctx.db.car.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!carToDelete) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Silinecek araç bulunamadı.',
+        });
+      }
+
+      await ctx.db.car.delete({
+        where: { id: input.id },
+      });
+
+      return { success: true, message: 'Araç başarıyla silindi.' };
     }),
 });

@@ -1,12 +1,12 @@
 import "~/styles/globals.css";
-
 import { type Metadata } from "next";
-import { Inter } from "next/font/google"; // DEĞİŞİKLİK 1: Geist -> 
+import { Inter } from "next/font/google";
 import { NextAuthProvider } from "./_components/NextAuthProvider";
 import { Navbar } from "./_components/Navbar";
 import { TRPCReactProvider } from "~/trpc/react";
-import { Footer } from "./_components/Footer"; // <-- 1. Footer'ı import et
-import { FloatingActionButtons } from "./_components/FloatingActionButtons"; // <-- 1. Import et
+import { Footer } from "./_components/Footer";
+import { FloatingActionButtons } from "./_components/FloatingActionButtons";
+import { headers } from "next/headers"; // <-- 1. headers'ı import et
 
 export const metadata: Metadata = {
   title: "Araba Kiralama Projesi",
@@ -16,25 +16,22 @@ export const metadata: Metadata = {
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans", // Değişken adını daha standart hale getirdik
+  variable: "--font-sans",
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // <html> etiketine suppressHydrationWarning ekliyoruz
-    <html lang="tr" className={`${inter.variable}`} suppressHydrationWarning>
-      <body className="pt-16"> 
+    <html lang="tr">
+      <body>
         <TRPCReactProvider>
           <NextAuthProvider>
             <Navbar />
-            {children}
-            <Footer /> 
-            <FloatingActionButtons /> {/* <-- 2. Footer'ın yanına ekle */}
-
+            {/* main etiketinde artık className yok */}
+            <main>
+              {children}
+            </main>
+            <Footer />
+            <FloatingActionButtons />
           </NextAuthProvider>
         </TRPCReactProvider>
       </body>

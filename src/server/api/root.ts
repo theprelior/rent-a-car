@@ -4,7 +4,7 @@ import { locationRouter } from "~/server/api/routers/location"; // <-- 1. Import
 import { contactRouter } from "~/server/api/routers/contact"; // <-- 1. Import et
 import { bookingRouter } from "~/server/api/routers/booking"; // <-- 1. Import et
 import { userRouter } from "~/server/api/routers/user"; // <-- Import et
-import { authRouter } from "~/server/api/routers/auth"; // <-- Import et
+import { extraRouter } from "./routers/extra"; // <-- 1. Import et
 
 /**
  * This is the primary router for your server.
@@ -18,7 +18,8 @@ export const appRouter = createTRPCRouter({
   contact: contactRouter, // <-- 2. Buraya ekle
   booking: bookingRouter, // <-- 2. Buraya ekle
   user: userRouter, // <-- Buraya ekle
-  auth: authRouter,
+  extra: extraRouter, // <-- 2. Buraya ekle
+
 });
 
 // export type definition of API

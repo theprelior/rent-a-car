@@ -12,7 +12,8 @@ const navLinks = [
     { name: "Yeni Araç Ekle", href: "/admin/cars/add" },
     { name: "Lokasyonlar", href: "/admin/locations" },
     { name: "Kullanıcılar", href: "/admin/users" }, // <-- BU SATIRI EKLE
-
+    { name: "Rezervasyon Yönetimi", href: "/admin/manage-bookings" },
+    { name: "Ekstralar", href: "/admin/extras" },  
 ];
 
 export function AdminSidebar() {

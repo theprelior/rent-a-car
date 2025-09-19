@@ -4,43 +4,57 @@
 
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Car } from "@prisma/client";
+import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Car, type PricingTier } from "@prisma/client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Sunucudan gelen ve serialize edilmiş araç verisinin tipi
-export type PlainCar = Omit<Car, 'id' | 'fiyat' | 'motorHacmi'> & {
-    id: string;
-    fiyat: string | null;
-    motorHacmi: string | null;
-}
+export type PlainCar = Omit<Car, 'id' | 'basePrice' | 'motorHacmi' | 'pricingTiers'> & {
+  id: string;
+  basePrice: string;
+  motorHacmi: string | null;
+  pricingTiers: PricingTierState[];
+};
+
+type PricingTierState = {
+  minDays: string;
+  maxDays: string;
+  dailyRate: string;
+};
+
+type CarWithTiers = Car & { pricingTiers: PricingTier[] };
 
 // Formun state'i için başlangıç durumu
 const initialState = {
   id: undefined as string | undefined,
   marka: "", model: "", yil: new Date().getFullYear().toString(),
   yakitTuru: YakitTuru.Benzin, vitesTuru: VitesTuru.Manuel, sasiNo: "",
-  motorHacmi: "", beygirGucu: "", fiyat: "", kilometre: "", durum: Durum.Kiralik,
+  motorHacmi: "", beygirGucu: "", kilometre: "", durum: Durum.Kiralik,
   kasaTipi: KasaTipi.Sedan, cekisTipi: CekisTipi.Onden_cekis, kapiSayisi: "4",
   koltukSayisi: "5", renk: "", plaka: "", donanimPaketi: "",
-  ekstraOzellikler: "", locationId: "",
+  ekstraOzellikler: "", locationId: "", basePrice: ""
 };
 
 // Yardımcı FormField bileşeni
 const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div><label className="block text-sm font-medium mb-1 text-gray-300">{label}</label>{children}</div>
+  <div><label className="block text-sm font-medium mb-1 text-gray-300">{label}</label>{children}</div>
 );
 
 type AddCarFormProps = { initialData?: PlainCar | null; };
 
 export function AddCarForm({ initialData }: AddCarFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState<any>(initialState);
   const [file, setFile] = useState<File | null>(null);
-
+  const [pricingTiers, setPricingTiers] = useState<PricingTierState[]>([
+    { minDays: '1', maxDays: '3', dailyRate: '' }
+  ]);
   const isEditMode = !!initialData;
 
   useEffect(() => {
     if (initialData) {
       // DÜZELTME: Gelen verideki tüm sayısal/özel tipleri form state'ine uygun string'lere çeviriyoruz.
+      const { pricingTiers, ...carData } = initialData;
       setFormData({
         ...initialData,
         id: initialData.id, // Zaten string
@@ -49,11 +63,19 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         beygirGucu: initialData.beygirGucu?.toString() ?? '',
         kapiSayisi: initialData.kapiSayisi?.toString() ?? '',
         koltukSayisi: initialData.koltukSayisi?.toString() ?? '',
-        fiyat: initialData.fiyat ?? '',
         kilometre: initialData.kilometre?.toString() ?? '',
         locationId: initialData.locationId?.toString() ?? '',
         ekstraOzellikler: initialData.ekstraOzellikler.join(', '),
+        basePrice: Number(initialData.basePrice).toString(),
+
       });
+      if (pricingTiers && pricingTiers.length > 0) {
+        setPricingTiers(pricingTiers.map(tier => ({
+          minDays: tier.minDays.toString(),
+          maxDays: tier.maxDays.toString(),
+          dailyRate: Number(tier.dailyRate).toString(),
+        })));
+      }
     }
   }, [initialData]);
 
@@ -77,15 +99,34 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
       alert("Araç başarıyla güncellendi!");
       void utils.car.getAll.invalidate();
       if (initialData?.id) {
-          void utils.car.getById.invalidate({ id: BigInt(initialData.id) });
+        void utils.car.getById.invalidate({ id: BigInt(initialData.id) });
       }
     },
     onError: (error) => { alert(`Hata: ${error.message}`); },
   });
 
- const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0] || null); // Eğer e.target.files[0] undefined ise null ata
+    }
+  };
+  const handleTierChange = (index: number, field: keyof PricingTierState, value: string) => {
+    const newTiers = [...pricingTiers];
+    const tier = newTiers[index];
+    if (tier) {
+      tier[field] = value;
+      setPricingTiers(newTiers);
+    }
+  };
+
+
+  const addTier = () => setPricingTiers([...pricingTiers, { minDays: '', maxDays: '', dailyRate: '' }]);
+
+  const removeTier = (index: number) => {
+    if (pricingTiers.length > 1) {
+      setPricingTiers(pricingTiers.filter((_, i) => i !== index));
+    } else {
+      alert("En az bir fiyat aralığı olmalıdır.");
     }
   };
 
@@ -116,12 +157,18 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
       beygirGucu: formData.beygirGucu ? Number(formData.beygirGucu) : undefined,
       kapiSayisi: formData.kapiSayisi ? Number(formData.kapiSayisi) : undefined,
       koltukSayisi: formData.koltukSayisi ? Number(formData.koltukSayisi) : undefined,
-      fiyat: formData.fiyat ? Number(formData.fiyat) : undefined,
       kilometre: formData.kilometre ? Number(formData.kilometre) : undefined,
       locationId: formData.locationId ? Number(formData.locationId) : undefined,
       ekstraOzellikler: formData.ekstraOzellikler.split(',').map((item: string) => item.trim()).filter(Boolean),
+      pricingTiers: pricingTiers.map(tier => ({
+        minDays: Number(tier.minDays),
+        maxDays: Number(tier.maxDays),
+        dailyRate: Number(tier.dailyRate),
+      })),
+      basePrice: Number(formData.basePrice), // <-- YENİ
+
     };
-    
+
     if (isEditMode && initialData) {
       updateCar.mutate({ ...payload, id: BigInt(initialData.id) });
     } else {
@@ -140,21 +187,21 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
       <h2 className="text-2xl font-bold text-white border-b border-gray-700 pb-2">
         {isEditMode ? "Aracı Düzenle" : "Yeni Araç Ekle"}
       </h2>
-      
+
       <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="col-span-full">
-            <FormField label="Araç Resmi">
-                {isEditMode && initialData?.imageUrl && (
-                    <div className="mb-4">
-                        <p className="text-sm text-gray-400 mb-2">Mevcut Resim:</p>
-                        <Image src={initialData.imageUrl} alt="Mevcut araç resmi" width={150} height={100} className="rounded-md object-cover" />
-                    </div>
-                )}
-                <input id="car-image" type="file" onChange={handleFileChange} accept="image/*" className="input-style" />
-                {isEditMode && <p className="text-xs text-gray-500 mt-1">Yeni bir resim yüklerseniz mevcut resimle değiştirilecektir.</p>}
-            </FormField>
+          <FormField label="Araç Resmi">
+            {isEditMode && initialData?.imageUrl && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-400 mb-2">Mevcut Resim:</p>
+                <Image src={initialData.imageUrl} alt="Mevcut araç resmi" width={150} height={100} className="rounded-md object-cover" />
+              </div>
+            )}
+            <input id="car-image" type="file" onChange={handleFileChange} accept="image/*" className="input-style" />
+            {isEditMode && <p className="text-xs text-gray-500 mt-1">Yeni bir resim yüklerseniz mevcut resimle değiştirilecektir.</p>}
+          </FormField>
         </div>
-        
+
         <FormField label="Marka *"><input name="marka" value={formData.marka ?? ''} onChange={handleChange} placeholder="Toyota" required className="input-style" /></FormField>
         <FormField label="Model *"><input name="model" value={formData.model ?? ''} onChange={handleChange} placeholder="Corolla" required className="input-style" /></FormField>
         <FormField label="Yıl *"><input name="yil" value={formData.yil ?? ''} onChange={handleChange} type="number" placeholder="2023" required className="input-style" /></FormField>
@@ -162,7 +209,6 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         <FormField label="Plaka (Opsiyonel)"><input name="plaka" value={formData.plaka ?? ''} onChange={handleChange} placeholder="31 ABC 123" className="input-style" /></FormField>
         <FormField label="Renk (Opsiyonel)"><input name="renk" value={formData.renk ?? ''} onChange={handleChange} placeholder="Beyaz" className="input-style" /></FormField>
         <FormField label="Donanım Paketi (Opsiyonel)"><input name="donanimPaketi" value={formData.donanimPaketi ?? ''} onChange={handleChange} placeholder="Premium Plus" className="input-style" /></FormField>
-        <FormField label="Fiyat/Gün (Opsiyonel)"><input name="fiyat" value={formData.fiyat ?? ''} onChange={handleChange} type="number" step="0.01" placeholder="1500" className="input-style" /></FormField>
         <FormField label="Kilometre (Opsiyonel)"><input name="kilometre" value={formData.kilometre ?? ''} onChange={handleChange} type="number" placeholder="55000" className="input-style" /></FormField>
         <FormField label="Motor Hacmi (Litre, ör: 1.6)"><input name="motorHacmi" value={formData.motorHacmi ?? ''} onChange={handleChange} type="number" step="0.1" placeholder="1.6" className="input-style" /></FormField>
         <FormField label="Beygir Gücü (HP)"><input name="beygirGucu" value={formData.beygirGucu ?? ''} onChange={handleChange} type="number" placeholder="130" className="input-style" /></FormField>
@@ -175,16 +221,37 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         <FormField label="Durum"><select name="durum" value={formData.durum} onChange={handleChange} className="input-style">{Object.values(Durum).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>
         <FormField label="Ekstra Özellikler (virgülle ayırın)"><input name="ekstraOzellikler" value={formData.ekstraOzellikler ?? ''} onChange={handleChange} placeholder="Sunroof, Deri Koltuk, Navigasyon" className="input-style" /></FormField>
         <FormField label="Lokasyon *">
-            <select name="locationId" value={formData.locationId} onChange={handleChange} required className="input-style">
-                <option value="" disabled>Lokasyon Seçiniz</option>
-                {isLoadingLocations && <option>Yükleniyor...</option>}
-                {locations?.map(location => (
-                    <option key={location.id} value={location.id}>{location.name}</option>
-                ))}
-            </select>
+          <select name="locationId" value={formData.locationId} onChange={handleChange} required className="input-style">
+            <option value="" disabled>Lokasyon Seçiniz</option>
+            {isLoadingLocations && <option>Yükleniyor...</option>}
+            {locations?.map(location => (
+              <option key={location.id} value={location.id}>{location.name}</option>
+            ))}
+          </select>
         </FormField>
+        <FormField label="Standart Günlük Fiyat (₺) *">
+          <input name="basePrice" value={formData.basePrice} onChange={handleChange} type="number" step="0.01" placeholder="1500" required className="input-style" />
+        </FormField>
+        {/* FİYAT ARALIKLARI BÖLÜMÜ */}
+        <div className="col-span-full border-t border-gray-700 pt-6">
+          <h3 className="text-xl font-bold mb-4 text-white">Fiyat Aralıkları</h3>
+          <div className="space-y-4">
+            {pricingTiers.map((tier, index) => (
+              <div key={index} className="grid grid-cols-7 gap-4 items-center">
+                <div className="col-span-2"><FormField label="Min. Gün"><input type="number" value={tier.minDays} onChange={(e) => handleTierChange(index, 'minDays', e.target.value)} required className="input-style" /></FormField></div>
+                <div className="col-span-2"><FormField label="Max. Gün"><input type="number" value={tier.maxDays} onChange={(e) => handleTierChange(index, 'maxDays', e.target.value)} required className="input-style" /></FormField></div>
+                <div className="col-span-2"><FormField label="Günlük Fiyat (₺)"><input type="number" step="0.01" value={tier.dailyRate} onChange={(e) => handleTierChange(index, 'dailyRate', e.target.value)} required className="input-style" /></FormField></div>
+                <div className="col-span-1 pt-5"><button type="button" onClick={() => removeTier(index)} className="w-full rounded bg-red-600 p-2 text-white hover:bg-red-700">X</button></div>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={addTier} className="mt-4 rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+            + Yeni Fiyat Aralığı Ekle
+          </button>
+        </div>
       </div>
-      
+
+
       <button type="submit" disabled={createCar.isPending || updateCar.isPending} className="w-full rounded-md bg-green-600 px-4 py-3 font-bold text-white hover:bg-green-700 disabled:bg-gray-500">
         {isEditMode ? "Aracı Güncelle" : "Aracı Kaydet"}
       </button>

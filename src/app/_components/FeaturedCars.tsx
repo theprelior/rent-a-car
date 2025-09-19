@@ -45,8 +45,8 @@ export function FeaturedCars({ cars, options }: PropType) {
 
   return (
     <section className="bg-transparent py-16 sm:py-24">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+      <div className="container max-w-[1600px] mx-auto px-6 lg:px-12">
+        <div className="flex justify-end items-center mb-8 gap-4">
           <div>
           </div>
           <div className="hidden md:flex gap-4">
@@ -65,7 +65,7 @@ export function FeaturedCars({ cars, options }: PropType) {
               const plainCar: PlainCar = {
                 ...car,
                 id: car.id.toString(),
-                fiyat: car.fiyat?.toString() ?? null,
+                fiyat: car.basePrice?.toString() ?? null,
                 motorHacmi: car.motorHacmi?.toString() ?? null,
               };
               return (
