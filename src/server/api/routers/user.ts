@@ -16,6 +16,42 @@ import { render } from "@react-email/render";
 import { VerificationEmail } from "../../../components/VerificationEmail";
 import React from "react"; // eklemeyi unutma
 
+const createVerificationEmailHtml = ({ userName, verificationLink }: { userName: string, verificationLink: string }) => {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #0a0a0a; color: #cccccc; margin: 0; padding: 0; }
+      .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+      .header { background-color: #1a1a1a; padding: 20px; text-align: center; }
+      .header h1 { color: #f5b50a; margin: 0; }
+      .content { padding: 30px; }
+      .content p { line-height: 1.6; }
+      .button { display: block; width: 200px; margin: 20px auto; padding: 15px; background-color: #f5b50a; color: #000000; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold; }
+      .link { color: #f5b50a; word-break: break-all; }
+      .footer { font-size: 12px; color: #888888; text-align: center; padding: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header"><h1>Hesabını Doğrula</h1></div>
+      <div class="content">
+        <p>Merhaba ${userName},</p>
+        <p>RENTORA'ya kaydolduğun için teşekkürler. Hesabını doğrulamak ve kullanmaya başlamak için lütfen aşağıdaki butona tıkla.</p>
+        <a href="${verificationLink}" class="button">E-postamı Doğrula</a>
+        <p>Eğer bu butona tıklayamıyorsan, aşağıdaki linki kopyalayıp tarayıcına yapıştırabilirsin:</p>
+        <a href="${verificationLink}" class="link">${verificationLink}</a>
+      </div>
+      <div class="footer">
+        <p>Bu e-postayı sen istemediysen, lütfen dikkate alma.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
 // Nodemailer transporter'ını oluşturuyoruz
 const transporter = createTransport({
   service: 'gmail',
@@ -75,12 +111,7 @@ export const userRouter = createTRPCRouter({
       const verificationLink = `${env.NEXTAUTH_URL}/auth/verify-email?token=${verificationToken}`;
 
       // React bileşenini HTML'e çevirirken işlemin bitmesini bekle (await)
-      const emailHtml = await render(
-        React.createElement(VerificationEmail, {
-          userName: user.name!,
-          verificationLink: verificationLink,
-        })
-      );
+      const emailHtml = createVerificationEmailHtml({ userName: user.name!, verificationLink });
       // --------------------------
 
       // E-postayı gönder
@@ -184,12 +215,8 @@ export const userRouter = createTRPCRouter({
 
     const verificationLink = `${env.NEXTAUTH_URL}/auth/verify-email?token=${verificationToken}`;
     
-    const emailHtml = await render(
-      React.createElement(VerificationEmail, {
-        userName: name!,
-        verificationLink: verificationLink,
-      })
-    );
+    const emailHtml = createVerificationEmailHtml({ userName: name!, verificationLink });
+
 
     try {
       await transporter.sendMail({
