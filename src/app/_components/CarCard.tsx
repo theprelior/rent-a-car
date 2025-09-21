@@ -1,55 +1,47 @@
-// app/_components/CarCard.tsx
-
-"use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { type Car } from "@prisma/client";
+import { type Car, type PricingTier } from "@prisma/client";
 
-// GÜNCELLEME: Prop tipini Decimal yerine string kabul edecek şekilde değiştiriyoruz.
-// Bu, Sunucu->İstemci sınırını güvenli bir şekilde geçmek için gereklidir.
-export type PlainCar = Omit<Car, 'id' | 'fiyat' | 'motorHacmi'> & {
-  id: string;
-  fiyat: string | null;
-  motorHacmi: string | null;
-}
-
-type CarCardProps = {
-  car: PlainCar; // Artık yeni PlainCar tipini kullanıyor
+// Tip tanımını güncelliyoruz
+type CarWithTiers = Car & {
+  pricingTiers: PricingTier[];
 };
-export function CarCard({ car }: CarCardProps) {
+
+export function CarCard({ car }: { car: CarWithTiers }) {
+  // En düşük günlük fiyatı bulmak için bir mantık ekleyelim
+  // Bu, "Fiyatlar ...'dan başlıyor" demek için kullanılır.
+  const startingPrice = car.pricingTiers.reduce((min, tier) => {
+    const rate = Number(tier.dailyRate);
+    return rate < min ? rate : min;
+  }, Number(car.basePrice)); // Başlangıç olarak basePrice'ı al
+
   return (
-    <div className="w-[18rem] sm:w-[22rem] md:w-[26rem] lg:w-[28rem] flex-shrink-0 overflow-hidden rounded-2xl bg-gray-800 shadow-2xl snap-start transition-transform duration-300 hover:scale-105">
-      {/* Resim */}
-      <div className="relative h-64 w-full">
-        <Image
-          src={car.imageUrl ?? '/car-placeholder.png'}
-          alt={`${car.marka} ${car.model}`}
-          fill
-          className="object-cover"
-        />
-      </div>
-
-      {/* İçerik */}
-      <div className="p-6">
-        <h3 className="text-2xl font-bold text-white">{car.marka} {car.model}</h3>
-        <p className="text-md text-gray-400">{car.yil}</p>
-
-        <div className="mt-5 flex items-center justify-between">
-          <p className="text-xl font-semibold text-yellow-400">
-            {car.fiyat ? `₺${Number(car.basePrice).toLocaleString('tr-TR')}` : 'N/A'}
-            <span className="text-sm font-normal text-gray-400"> /gün</span>
+    <div className="flex h-full flex-col overflow-hidden rounded-xl bg-neutral-900 shadow-lg transition-transform duration-300 hover:scale-105 border border-neutral-800">
+      <Link href={`/cars/${car.id.toString()}`} className="block">
+        <div className="relative h-56 w-full">
+          <Image
+            src={car.imageUrl ?? '/car-placeholder.png'}
+            alt={`${car.marka} ${car.model}`}
+            layout="fill"
+            objectFit="cover"
+          />
+        </div>
+      </Link>
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="text-xl font-bold text-white">{car.marka} {car.model}</h3>
+        <p className="text-sm text-gray-400">{car.yil}</p>
+        <div className="mt-4 flex-grow">
+          {/* Özellikler */}
+        </div>
+        <div className="mt-4 border-t border-neutral-700 pt-4">
+          <p className="text-gray-400">Günlük Fiyat</p>
+          <p className="text-2xl font-bold text-yellow-400">
+            ₺{startingPrice.toLocaleString('tr-TR')}
+            <span className="text-base font-normal text-gray-400">'dan başlayan fiyatlarla</span>
           </p>
-          <Link
-            href={`/cars/${car.id.toString()}`}
-            className="rounded-md bg-yellow-500 px-6 py-2 text-sm font-bold text-black transition hover:bg-yellow-600"
-          >
-            Kirala
-          </Link>
         </div>
       </div>
     </div>
-
-
   );
 }

@@ -1,5 +1,6 @@
 // app/cars/[id]/page.tsx
 
+
 import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 import { CarDetailView } from "./CarDetailView"; // Yeni bileşenimizi import ediyoruz

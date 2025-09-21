@@ -32,7 +32,7 @@ const initialState = {
   motorHacmi: "", beygirGucu: "", kilometre: "", durum: Durum.Kiralik,
   kasaTipi: KasaTipi.Sedan, cekisTipi: CekisTipi.Onden_cekis, kapiSayisi: "4",
   koltukSayisi: "5", renk: "", plaka: "", donanimPaketi: "",
-  ekstraOzellikler: "", locationId: "", basePrice: ""
+  ekstraOzellikler: "", locationId: "", basePrice: "",  bagajSayisi: "2", // <-- YENİ
 };
 
 // Yardımcı FormField bileşeni
@@ -63,6 +63,7 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         beygirGucu: initialData.beygirGucu?.toString() ?? '',
         kapiSayisi: initialData.kapiSayisi?.toString() ?? '',
         koltukSayisi: initialData.koltukSayisi?.toString() ?? '',
+        bagajSayisi: initialData.bagajSayisi?.toString() ?? '2', // <-- YENİ
         kilometre: initialData.kilometre?.toString() ?? '',
         locationId: initialData.locationId?.toString() ?? '',
         ekstraOzellikler: initialData.ekstraOzellikler.join(', '),
@@ -157,6 +158,7 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
       beygirGucu: formData.beygirGucu ? Number(formData.beygirGucu) : undefined,
       kapiSayisi: formData.kapiSayisi ? Number(formData.kapiSayisi) : undefined,
       koltukSayisi: formData.koltukSayisi ? Number(formData.koltukSayisi) : undefined,
+      bagajSayisi: formData.bagajSayisi ? Number(formData.bagajSayisi) : undefined, // <-- YENİ
       kilometre: formData.kilometre ? Number(formData.kilometre) : undefined,
       locationId: formData.locationId ? Number(formData.locationId) : undefined,
       ekstraOzellikler: formData.ekstraOzellikler.split(',').map((item: string) => item.trim()).filter(Boolean),
@@ -214,6 +216,8 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         <FormField label="Beygir Gücü (HP)"><input name="beygirGucu" value={formData.beygirGucu ?? ''} onChange={handleChange} type="number" placeholder="130" className="input-style" /></FormField>
         <FormField label="Kapı Sayısı"><input name="kapiSayisi" value={formData.kapiSayisi ?? ''} onChange={handleChange} type="number" placeholder="4" className="input-style" /></FormField>
         <FormField label="Koltuk Sayısı"><input name="koltukSayisi" value={formData.koltukSayisi ?? ''} onChange={handleChange} type="number" placeholder="5" className="input-style" /></FormField>
+        <FormField label="Bagaj Sayısı"><input name="bagajSayisi" value={formData.bagajSayisi} onChange={handleChange} type="number" placeholder="2" className="input-style" /></FormField>
+
         <FormField label="Yakıt Türü *"><select name="yakitTuru" value={formData.yakitTuru} onChange={handleChange} className="input-style">{Object.values(YakitTuru).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>
         <FormField label="Vites Türü *"><select name="vitesTuru" value={formData.vitesTuru} onChange={handleChange} className="input-style">{Object.values(VitesTuru).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>
         <FormField label="Kasa Tipi"><select name="kasaTipi" value={formData.kasaTipi} onChange={handleChange} className="input-style">{Object.values(KasaTipi).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>

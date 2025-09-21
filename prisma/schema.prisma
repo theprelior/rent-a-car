@@ -27,6 +27,9 @@ model Car {
   
   // --- DEĞİŞİKLİK 2: Yeni fiyat aralıkları ilişkisi eklendi ---
   pricingTiers     PricingTier[]
+  
+  category         CarCategory @default(EKONOMIK)
+
 
   kilometre        Int?
   durum            Durum?
@@ -200,4 +203,13 @@ model Extra {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("extras")
+}
+
+enum CarCategory {
+  EKONOMIK
+  ORTA_SINIF
+  UST_SINIF
+  VIP
+  SUV
+  MINIBUS
 }

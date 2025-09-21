@@ -25,6 +25,8 @@
 
 /* src/styles/globals.css'in en altına ekleyin */
 
+/* ... dosyanın en altına bu yeni kuralları ekle ... */
+
 .embla {
   overflow: hidden;
 }
@@ -32,8 +34,23 @@
   display: flex;
 }
 .embla__slide {
-  flex: 0 0 85%; /* mobilde %85 genişlik */
+  flex: 0 0 100%; /* Mobil cihazlarda varsayılan olarak tam genişlik */
+  min-width: 0;
+  padding-left: 1rem; /* Slaytlar arasına boşluk ekle */
+}
 
+/* Orta boy ekranlardan itibaren (tabletler) her slayt %50 genişlikte olsun */
+@media (min-width: 768px) {
+  .embla__slide {
+    flex-basis: 50%;
+  }
+}
+
+/* Geniş ekranlardan itibaren (bilgisayarlar) her slayt %33.33 genişlikte olsun */
+@media (min-width: 1024px) {
+  .embla__slide {
+    flex-basis: 33.3333%;
+  }
 }
 
 @media (min-width: 640px) {

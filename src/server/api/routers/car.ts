@@ -7,38 +7,79 @@ import {
   publicProcedure,
   adminProcedure
 } from "~/server/api/trpc";
-import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Prisma, type PricingTier } from "@prisma/client";
+import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, CarCategory, type Prisma, type PricingTier } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 
 export const carRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
+        // Mevcut filtreler
         locationId: z.number().int().optional(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
+        
+        // Yeni filtreler
+        searchTerm: z.string().optional(), // Marka/Model araması için
+        yakitTuru: z.nativeEnum(YakitTuru).optional(),
+        vitesTuru: z.nativeEnum(VitesTuru).optional(),
+        category: z.nativeEnum(CarCategory).optional(),
       }).optional()
     )
     .query(({ ctx, input }) => {
+      // Prisma için karmaşık bir "where" koşulu oluşturuyoruz
       const whereClause: Prisma.CarWhereInput = {};
+      const andConditions: Prisma.CarWhereInput[] = [];
+
       if (input?.locationId) {
-        whereClause.locationId = input.locationId;
+        andConditions.push({ locationId: input.locationId });
       }
+
       if (input?.startDate && input?.endDate) {
-        whereClause.bookings = {
-          none: {
-            AND: [
-              { startDate: { lt: input.endDate } },
-              { endDate: { gt: input.startDate } },
-            ],
+        andConditions.push({
+          bookings: {
+            none: {
+              AND: [
+                { startDate: { lt: input.endDate } },
+                { endDate: { gt: input.startDate } },
+              ],
+            },
           },
-        };
+        });
       }
+
+      if (input?.yakitTuru) {
+        andConditions.push({ yakitTuru: input.yakitTuru });
+      }
+
+      if (input?.vitesTuru) {
+        andConditions.push({ vitesTuru: input.vitesTuru });
+      }
+
+      if (input?.category) {
+        andConditions.push({ category: input.category });
+      }
+
+      // Marka veya modelde arama yapmak için
+      if (input?.searchTerm) {
+        andConditions.push({
+          OR: [
+            { marka: { contains: input.searchTerm, mode: 'insensitive' } },
+            { model: { contains: input.searchTerm, mode: 'insensitive' } },
+          ],
+        });
+      }
+      
+      // Tüm koşulları birleştir
+      if(andConditions.length > 0) {
+        whereClause.AND = andConditions;
+      }
+
       return ctx.db.car.findMany({
         where: whereClause,
         include: {
-          pricingTiers: true, // 👈 fiyat aralıklarını da getir
-          location: true,     // 👈 eğer lokasyonu da göstermek istiyorsan
+          pricingTiers: true,
+          location: true,
         },
       });
     }),
@@ -84,6 +125,7 @@ export const carRouter = createTRPCRouter({
         renk: z.string().optional(),
         kapiSayisi: z.number().int().optional(),
         koltukSayisi: z.number().int().optional(),
+        bagajSayisi: z.number().int().optional(),
         kasaTipi: z.nativeEnum(KasaTipi).optional(),
         cekisTipi: z.nativeEnum(CekisTipi).optional(),
         plaka: z.string().optional(),
@@ -134,6 +176,7 @@ export const carRouter = createTRPCRouter({
         renk: z.string().optional(),
         kapiSayisi: z.number().int().optional(),
         koltukSayisi: z.number().int().optional(),
+        bagajSayisi: z.number().int().optional(),
         kasaTipi: z.nativeEnum(KasaTipi).optional(),
         cekisTipi: z.nativeEnum(CekisTipi).optional(),
         plaka: z.string().optional(),
@@ -151,6 +194,7 @@ export const carRouter = createTRPCRouter({
         ekstraOzellikler: z.array(z.string()).optional(),
         imageUrl: z.string().nullish(),
         locationId: z.number().int().optional(),
+         category: z.nativeEnum(CarCategory).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

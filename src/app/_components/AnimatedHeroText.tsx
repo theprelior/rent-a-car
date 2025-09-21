@@ -73,12 +73,13 @@ export function AnimatedHeroText() {
           <motion.span key={i} variants={letter}>
             {char === "O" ? (
               <motion.span
-                className="inline-block"
+                // DÜZELTME: Tekerleği dikeyde diğer harflerle hizalamak için
+                // relative ve top-1 (veya md:top-2) class'larını ekliyoruz.
+                className="relative top-1 inline-block md:top-2"
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
               >
-                {/* DÜZELTME: Yeni tekerlek ikonunu ve stilini kullanıyoruz */}
-                <IconWheel className="h-14 w-14 text-yellow-500 md:h-20 md:w-20" />
+                <IconWheel className="h-16 w-16 text-yellow-500 md:h-19 md:w-19" />
               </motion.span>
             ) : (
               // Harflerin dikeyde hizalanması için bir kapsayıcı

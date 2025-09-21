@@ -12,7 +12,7 @@ const IconCalendar = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" 
 const IconClock = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> );
 
 export function CarSearchForm() {
-  const router = useRouter();
+ const router = useRouter();
   const { data: locations, isLoading: isLoadingLocations } = api.location.getAll.useQuery();
 
   const [pickupLocationId, setPickupLocationId] = useState("");
@@ -23,12 +23,25 @@ export function CarSearchForm() {
   const [endTime, setEndTime] = useState("10:00");
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+      e.preventDefault();
     const params = new URLSearchParams();
-    if (pickupLocationId) params.append("locationId", pickupLocationId);
-    if (startDate && startTime) params.append("startDate", new Date(`${startDate}T${startTime}`).toISOString());
-    if (endDate && endTime) params.append("endDate", new Date(`${endDate}T${endTime}`).toISOString());
-    router.push(`/?${params.toString()}`);
+
+    
+   // Seçilen tüm değerleri URL parametrelerine ekle
+    if (pickupLocationId) params.append("pickupLocationId", pickupLocationId);
+    if (dropoffLocationId) params.append("dropoffLocationId", dropoffLocationId);
+    if (startDate && startTime) {
+      // Tarih ve saati birleştirip tam bir tarih formatı oluştur
+      const fullStartDate = new Date(`${startDate}T${startTime}`);
+      params.append("startDate", fullStartDate.toISOString().substring(0, 16));
+    }
+    if (endDate && endTime) {
+      const fullEndDate = new Date(`${endDate}T${endTime}`);
+      params.append("endDate", fullEndDate.toISOString().substring(0, 16));
+    }
+    
+    // DEĞİŞİKLİK: Kullanıcıyı ana sayfa yerine /araclar sayfasına yönlendir
+    router.push(`/cars?${params.toString()}`);
   };
 
   return (

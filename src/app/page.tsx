@@ -73,10 +73,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="absolute inset-0 bg-black/70"></div>
 
         <div className="relative container mx-auto px-4">
-          <h2 className="text-3xl text-center font-extrabold tracking-tight text-white sm:text-4xl">
-            Şuan Müsait Olan Araçlarımız
+            <h2 className="text-4xl text-center font-extrabold tracking-tight text-white sm:text-5xl bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+            Şu An Müsait Olan Araçlarımız
           </h2>
-          <p className="mb-10 text-center text-xl tracking-wide drop-shadow-lg text-gray-400">
+        {/* DEĞİŞİKLİK 2: Başlık altındaki boşluk azaltıldı (mb-10 -> mb-8) */}
+          <p className="mb-8 text-center text-xl tracking-wide drop-shadow-lg text-gray-400">
             Her ihtiyaca ve bütçeye uygun, popüler araçlarımızı keşfedin.
           </p>
           <FeaturedCars cars={cars} />

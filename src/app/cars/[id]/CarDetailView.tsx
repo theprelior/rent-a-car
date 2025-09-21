@@ -2,51 +2,70 @@
 "use client";
 
 import Image from "next/image";
-import { type Car, type Location, type PricingTier, type Extra } from "@prisma/client";
+import { type Car, type Location } from "@prisma/client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { api } from "~/trpc/react";
+import { useSearchParams } from "next/navigation";
 
-// Sunucudan gelen, serialize edilmiş ve ilişkili verileri içeren tip
-export type CarWithDetails = Omit<Car, "id" | "motorHacmi" | "basePrice" | "pricingTiers" | "locationId"> & {
+// --- lucide-react ikonları ---
+import { Fuel, Users, Briefcase, Settings } from "lucide-react";
+
+// Sunucudan gelen tip
+export type CarWithDetails = Omit<
+    Car,
+    "id" | "motorHacmi" | "basePrice" | "pricingTiers" | "locationId"
+> & {
     id: string;
     motorHacmi: string | null;
     basePrice: string;
     locationId: string | null;
-    location: Location | null; // location objesini ekliyoruz
+    location: Location | null;
     pricingTiers: {
         id: number;
-        minDays: string; // number -> string
-        maxDays: string; // number -> string
-        dailyRate: string; // Decimal -> string
-        carId: string; // bigint -> string
+        minDays: string;
+        maxDays: string;
+        dailyRate: string;
+        carId: string;
     }[];
 };
 
-// İkonlar (Aynı)
-// İkonları tanımlıyoruz
-
-const IconGas = () => (<svg className="w-5 h-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" x2="15" y1="22" y2="22" /><line x1="4" x2="14" y1="9" y2="9" /><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18" /><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z" /></svg>);
-
-const IconManualGearbox = () => (<svg className="w-5 h-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6h2l4 12h2l4-12h2" /><circle cx="12" cy="6" r="4" /></svg>);
-
-const IconUsers = () => (<svg className="w-5 h-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>);
-
-
-export function CarDetailView({ car, locations }: { car: CarWithDetails, locations: Location[] }) {
+export function CarDetailView({
+    car,
+    locations,
+}: {
+    car: CarWithDetails;
+    locations: Location[];
+}) {
     const { data: session } = useSession();
+    const { data: extras, isLoading: isLoadingExtras } =
+        api.extra.getAllPublic.useQuery();
+    const searchParams = useSearchParams();
 
-    // --- YENİ: Ekstraları veritabanından çekiyoruz ---
-    const { data: extras, isLoading: isLoadingExtras } = api.extra.getAllPublic.useQuery();
-
-    // State Yönetimi
-    const [startDate, setStartDate] = useState<string>('');
-    const [endDate, setEndDate] = useState<string>('');
+    const [startDate, setStartDate] = useState<string>(
+        searchParams.get("startDate") ?? ""
+    );
+    const [endDate, setEndDate] = useState<string>(
+        searchParams.get("endDate") ?? ""
+    );
     const [rentalDays, setRentalDays] = useState(0);
     const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
-    const [calculatedPrice, setCalculatedPrice] = useState({ dailyRate: 0, carTotal: 0, extrasTotal: 0, total: 0 });
+    const [calculatedPrice, setCalculatedPrice] = useState({
+        dailyRate: 0,
+        carTotal: 0,
+        extrasTotal: 0,
+        total: 0,
+    });
 
-    // Fiyat Hesaplamaları
+    // --- YENİ: Sürücü Bilgileri için State'ler ---
+    const [driverName, setDriverName] = useState(session?.user.name ?? '');
+    const [driverEmail, setDriverEmail] = useState(session?.user.email ?? '');
+    const [driverPhone, setDriverPhone] = useState('');
+    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [flightNotes, setFlightNotes] = useState('');
+    const [specialNotes, setSpecialNotes] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('');
+
     useEffect(() => {
         if (startDate && endDate) {
             const start = new Date(startDate);
@@ -58,55 +77,130 @@ export function CarDetailView({ car, locations }: { car: CarWithDetails, locatio
                 const days = diffDays > 0 ? diffDays : 0;
                 setRentalDays(days);
 
-                // Doğru fiyat aralığını bul
-                const tier = car.pricingTiers.find(t =>
-                    days >= Number(t.minDays) && days <= Number(t.maxDays)
+                const tier = car.pricingTiers.find(
+                    (t) => days >= Number(t.minDays) && days <= Number(t.maxDays)
                 );
-
                 const dailyRate = tier ? Number(tier.dailyRate) : Number(car.basePrice);
                 const carTotal = dailyRate * days;
 
-                // Ekstraların toplam fiyatını hesapla
                 const extrasTotal = selectedExtras.reduce((total, extraId) => {
-                    const extra = extras?.find(e => e.id === extraId);
+                    const extra = extras?.find((e) => e.id === extraId);
                     if (!extra) return total;
-                    // Ücret günlük ise gün sayısıyla çarp, değilse fiyati direkt ekle
-                    const extraPrice = extra.isDaily ? Number(extra.price) * days : Number(extra.price);
+                    const extraPrice = extra.isDaily
+                        ? Number(extra.price) * days
+                        : Number(extra.price);
                     return total + extraPrice;
                 }, 0);
 
-                setCalculatedPrice({ dailyRate, carTotal, extrasTotal, total: carTotal + extrasTotal });
+                setCalculatedPrice({
+                    dailyRate,
+                    carTotal,
+                    extrasTotal,
+                    total: carTotal + extrasTotal,
+                });
             } else {
                 setRentalDays(0);
-                setCalculatedPrice({ dailyRate: 0, carTotal: 0, extrasTotal: 0, total: 0 });
+                setCalculatedPrice({
+                    dailyRate: 0,
+                    carTotal: 0,
+                    extrasTotal: 0,
+                    total: 0,
+                });
             }
         }
     }, [startDate, endDate, selectedExtras, car, extras]);
 
     const handleExtraChange = (extraId: number) => {
-        setSelectedExtras(prev =>
+        setSelectedExtras((prev) =>
             prev.includes(extraId)
-                ? prev.filter(id => id !== extraId)
+                ? prev.filter((id) => id !== extraId)
                 : [...prev, extraId]
         );
     };
 
     const handleBookingSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Kullanıcının rezervasyon oluşturma mantığı buraya gelecek.
-        alert("Rezervasyon Tamamla butonuna tıklandı!");
+
+        if (!paymentMethod) {
+            alert("Lütfen bir ödeme yöntemi seçin.");
+            return;
+        }
+
+        // 1. Şirketin WhatsApp numarasını buraya yaz (uluslararası formatta, + olmadan)
+        const companyPhoneNumber = "905301758826"; // Örnek numara, kendi numaranla değiştir.
+
+        // 2. Formdaki tüm verileri topla ve düzenli bir metin oluştur
+        const selectedExtrasText = extras
+            ?.filter(extra => selectedExtras.includes(extra.id))
+            .map(extra => `- ${extra.name} (₺${Number(extra.price)} ${extra.isDaily ? '/ Günlük' : '/ Tek Seferlik'})`)
+            .join('\n') || 'Ekstra seçilmedi.';
+
+        const message = `
+*Yeni Araç Kiralama Talebi*
+
+*Araç Bilgileri:*
+- Araç: *${car.marka} ${car.model} (${car.yil})*
+- Alış Lokasyonu: *${locations.find(l => l.id.toString() === car.locationId)?.name ?? 'Belirtilmedi'}*
+- Alış Tarihi: *${new Date(startDate).toLocaleString('tr-TR')}*
+- Bırakış Tarihi: *${new Date(endDate).toLocaleString('tr-TR')}*
+- Toplam Gün: *${rentalDays}*
+
+*Sürücü Bilgileri:*
+- Ad Soyad: *${driverName}*
+- Doğum Tarihi: *${dateOfBirth}*
+- E-posta: *${driverEmail}*
+- Telefon: *${driverPhone}*
+
+*Ekstralar:*
+${selectedExtrasText}
+
+*Notlar:*
+- Uçuş Bilgileri: *${flightNotes || 'Belirtilmedi'}*
+- Özel Notlar: *${specialNotes || 'Belirtilmedi'}*
+
+*Ödeme Bilgileri:*
+- Seçilen Yöntem: *${paymentMethod === 'havale' ? 'Havale / EFT' : 'Araç Teslimatında Ödeme'}*
+- Günlük Araç Ücreti: *₺${calculatedPrice.dailyRate.toLocaleString('tr-TR')}*
+- Ekstralar Toplamı: *₺${calculatedPrice.extrasTotal.toLocaleString('tr-TR')}*
+- *TOPLAM ÜCRET: ₺${calculatedPrice.total.toLocaleString('tr-TR')}*
+    `;
+
+        // 3. Mesajı URL formatına uygun hale getir
+        const encodedMessage = encodeURIComponent(message.trim());
+
+        // 4. WhatsApp linkini oluştur ve yeni sekmede aç
+        const whatsappUrl = `https://wa.me/${companyPhoneNumber}?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+
+        // İsteğe bağlı: Kullanıcıyı bir "Teşekkürler" sayfasına yönlendirebilirsin
+        // router.push('/tesekkurler');
     };
+
     return (
         <div className="bg-black text-white min-h-screen pt-16">
             <div className="container mx-auto px-4 py-12 space-y-12">
-                {/* BÖLÜM 1: ARAÇ BİLGİSİ VE FİYAT HESAPLAMA */}
+                {/* Araç Bilgisi */}
                 <div className="border-b-2 border-yellow-500/50 pb-4 mb-8">
                     <h1 className="text-4xl font-extrabold text-white flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                        <span>{car.marka} {car.model}</span>
-                        <div className="flex items-center space-x-4 text-sm font-normal text-gray-300 mt-2 sm:mt-0">
-                            <span className="flex items-center"><IconGas /> {car.yakitTuru}</span>
-                            <span className="flex items-center"><IconManualGearbox /> {car.vitesTuru.replace('_', ' ')}</span>
-                            <span className="flex items-center"><IconUsers /> {car.koltukSayisi} Koltuk</span>
+                        <span>
+                            {car.marka} {car.model}
+                        </span>
+                        <div className="flex items-center space-x-6 text-sm font-normal text-gray-300 mt-2 sm:mt-0">
+                            <span className="flex items-center gap-2">
+                                <Fuel className="h-10 w-10 text-yellow-400" /> {car.yakitTuru}
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <Settings className="h-10 w-10 text-yellow-400" />{" "}
+                                {car.vitesTuru.replace("_", " ")}
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <Users className="h-10 w-10 text-yellow-400" /> {car.koltukSayisi}{" "}
+                                Koltuk
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <Briefcase className="h-10 w-10 text-yellow-400" />{" "}
+                                {car.bagajSayisi ?? "N/A"} Bagaj
+                            </span>
                         </div>
                     </h1>
                 </div>
@@ -128,8 +222,12 @@ export function CarDetailView({ car, locations }: { car: CarWithDetails, locatio
                                 </div>
                                 <div>
                                     <label className="text-sm font-semibold text-gray-400">Alış Tarihi</label>
-                                    <input type="date" onChange={(e) => e.target.value && setStartDate(e.target.value)} className="input-style mt-1 bg-neutral-700 border-neutral-700 [color-scheme:dark]" />
-                                </div>
+                                    <input
+                                        type="datetime-local"
+                                        value={startDate} // State'ten gelen değeri kullanır
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="input-style mt-1 bg-neutral-700 border-neutral-700 [color-scheme:dark]"
+                                    />                                </div>
                                 <div>
                                     <label className="text-sm font-semibold text-gray-400">Bırakış Yeri</label>
                                     <select defaultValue={car.location?.id} className="input-style mt-1 bg-neutral-700 border-neutral-700">
@@ -138,8 +236,12 @@ export function CarDetailView({ car, locations }: { car: CarWithDetails, locatio
                                 </div>
                                 <div>
                                     <label className="text-sm font-semibold text-gray-400">Bırakış Tarihi</label>
-                                    <input type="date" onChange={(e) => e.target.value && setEndDate(e.target.value)} className="input-style mt-1 bg-neutral-700 border-neutral-700 [color-scheme:dark]" />
-                                </div>
+                                    <input
+                                        type="datetime-local"
+                                        value={endDate} // State'ten gelen değeri kullanır
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="input-style mt-1 bg-neutral-700 border-neutral-700 [color-scheme:dark]"
+                                    />                                </div>
                             </div>
                             <div className="mt-6 border-t border-neutral-700 pt-4 space-y-2">
                                 <div className="flex justify-between text-gray-300"><p>Kiralama Süresi:</p> <p className="font-semibold text-white">{rentalDays} Gün</p></div>
@@ -155,15 +257,27 @@ export function CarDetailView({ car, locations }: { car: CarWithDetails, locatio
                 <form onSubmit={handleBookingSubmit} className="space-y-12">
                     {/* Rezervasyon Ekstraları Bölümü */}
                     <div className="rounded-lg bg-neutral-800 p-6">
-                        <h2 className="text-2xl font-bold mb-4 border-b border-neutral-700 pb-2">Rezervasyon Ekstraları</h2>
+                        <h2 className="text-2xl font-bold mb-4 border-b border-neutral-700 pb-2">
+                            Rezervasyon Ekstraları
+                        </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {isLoadingExtras && <p>Ekstralar yükleniyor...</p>}
-                            {extras?.map(extra => (
-                                <label key={extra.id} className="flex items-center space-x-3 p-3 rounded-md bg-neutral-700/50 hover:bg-neutral-700 cursor-pointer">
-                                    <input type="checkbox" onChange={() => handleExtraChange(extra.id)} className="h-5 w-5 rounded bg-gray-600 border-gray-500 text-yellow-500 focus:ring-yellow-600" />
-                                    <span className="text-gray-200">{extra.name}
+                            {extras?.map((extra) => (
+                                <label
+                                    key={extra.id}
+                                    className="flex items-center space-x-3 p-3 rounded-md bg-neutral-700/50 hover:bg-neutral-700 cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        onChange={() => handleExtraChange(extra.id)}
+                                        className="h-5 w-5 rounded bg-gray-600 border-gray-500 text-yellow-500 focus:ring-yellow-600"
+                                    />
+                                    <span className="text-gray-200">
+                                        {extra.name}
                                         <span className="text-gray-400 text-sm">
-                                            (₺{Number(extra.price)} {extra.isDaily ? '/ Günlük' : '/ Tek Seferlik'})
+                                            {" "}
+                                            (₺{Number(extra.price)}{" "}
+                                            {extra.isDaily ? "/ Günlük" : "/ Tek Seferlik"})
                                         </span>
                                     </span>
                                 </label>
@@ -171,25 +285,140 @@ export function CarDetailView({ car, locations }: { car: CarWithDetails, locatio
                         </div>
                     </div>
 
+                    {/* Sürücü Bilgileri */}
                     <div className="rounded-lg bg-neutral-800 p-6">
-                        <h2 className="text-2xl font-bold mb-4 border-b border-neutral-700 pb-2">Sürücü Bilgileri</h2>
+                        <h2 className="text-2xl font-bold mb-4 border-b border-neutral-700 pb-2">
+                            Sürücü Bilgileri
+                        </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <input type="text" defaultValue={session?.user.name ?? ''} placeholder="Adınız Soyadınız *" required className="input-style bg-neutral-700" />
-                            <input type="email" defaultValue={session?.user.email ?? ''} placeholder="E-posta Adresiniz *" required className="input-style bg-neutral-700" />
-                            <input type="tel" placeholder="Cep Telefonunuz *" required className="input-style bg-neutral-700" />
-                            <textarea placeholder="Özel Notlarınız (Uçuş No vb.)" rows={1} className="input-style bg-neutral-700"></textarea>
+                            {/* Ad Soyad */}
+                            <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-400 mb-1">
+                                    Adınız Soyadınız *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={driverName}
+                                    onChange={(e) => setDriverName(e.target.value)}
+                                    required
+                                    className="input-style bg-neutral-700"
+                                />
+                            </div>
+
+                            {/* Doğum Tarihi */}
+                            <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-400 mb-1">
+                                    Doğum Tarihiniz *
+                                </label>
+                                <input
+                                    type="date"
+                                    value={dateOfBirth}
+                                    onChange={(e) => setDateOfBirth(e.target.value)}
+                                    required
+                                    className="input-style bg-neutral-700 [color-scheme:dark]"
+                                />
+                            </div>
+
+                            {/* E-posta */}
+                            <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-400 mb-1">
+                                    E-posta Adresiniz *
+                                </label>
+                                <input
+                                    type="email"
+                                    value={driverEmail}
+                                    onChange={(e) => setDriverEmail(e.target.value)}
+                                    required
+                                    className="input-style bg-neutral-700"
+                                />
+                            </div>
+
+                            {/* Cep Telefonu */}
+                            <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-400 mb-1">
+                                    Cep Telefonunuz *
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={driverPhone}
+                                    onChange={(e) => setDriverPhone(e.target.value)}
+                                    required
+                                    className="input-style bg-neutral-700"
+                                />
+                            </div>
+
+                            {/* Uçuş Notları */}
+                            <div className="flex flex-col md:col-span-2">
+                                <label className="text-sm font-semibold text-gray-400 mb-1">
+                                    Uçuş Bilgileri (Opsiyonel)
+                                </label>
+                                <textarea
+                                    value={flightNotes}
+                                    onChange={(e) => setFlightNotes(e.target.value)}
+                                    rows={2}
+                                    className="input-style bg-neutral-700"
+                                ></textarea>
+                            </div>
+
+                            {/* Özel Notlar */}
+                            <div className="flex flex-col md:col-span-2">
+                                <label className="text-sm font-semibold text-gray-400 mb-1">
+                                    Özel Notlarınız (Opsiyonel)
+                                </label>
+                                <textarea
+                                    value={specialNotes}
+                                    onChange={(e) => setSpecialNotes(e.target.value)}
+                                    rows={3}
+                                    className="input-style bg-neutral-700"
+                                ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-lg bg-neutral-800 p-6">
+                        <h2 className="text-2xl font-bold mb-4 border-b border-neutral-700 pb-2">
+                            Ödeme Seçenekleri
+                        </h2>
+                        <div className="space-y-4">
+                            <p className="text-gray-400">Ödemenizi nasıl yapmak istersiniz? Seçiminiz operasyon ekibimize iletilecektir.</p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                {/* Seçenek 1 */}
+                                <label className={`flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all ${paymentMethod === 'havale' ? 'bg-yellow-500/20 border-yellow-500' : 'border-neutral-700 hover:border-neutral-600'}`}>
+                                    <input type="radio" name="paymentMethod" value="havale" checked={paymentMethod === 'havale'} onChange={(e) => setPaymentMethod(e.target.value)} className="hidden" />
+                                    <span className="text-lg font-bold text-white">Havale / EFT</span>
+                                    <p className="text-sm text-gray-400">Rezervasyon sonrası size iletilecek IBAN numarasına ödeme yapabilirsiniz.</p>
+                                </label>
+                                {/* Seçenek 2 */}
+                                <label className={`flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all ${paymentMethod === 'teslimde' ? 'bg-yellow-500/20 border-yellow-500' : 'border-neutral-700 hover:border-neutral-600'}`}>
+                                    <input type="radio" name="paymentMethod" value="teslimde" checked={paymentMethod === 'teslimde'} onChange={(e) => setPaymentMethod(e.target.value)} className="hidden" />
+                                    <span className="text-lg font-bold text-white">Araç Teslimatında Ödeme</span>
+                                    <p className="text-sm text-gray-400">Ödemeyi aracı teslim alırken kredi kartı veya nakit olarak yapabilirsiniz.</p>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
+                    {/* Onay ve Gönder */}
                     <div className="text-center">
                         <div className="mb-4">
-                            <label className="flex items-center justify-center gap-2 cursor-pointer text-gray-400"><input type="checkbox" required defaultChecked className="h-4 w-4 rounded bg-gray-600 border-gray-500 text-yellow-500 focus:ring-yellow-600" /> Kiralama şartlarını okudum ve kabul ediyorum.</label>
+                            <label className="flex items-center justify-center gap-2 cursor-pointer text-gray-400">
+                                <input
+                                    type="checkbox"
+                                    required
+                                    defaultChecked
+                                    className="h-4 w-4 rounded bg-gray-600 border-gray-500 text-yellow-500 focus:ring-yellow-600"
+                                />
+                                Kiralama şartlarını okudum ve kabul ediyorum.
+                            </label>
                         </div>
-                        <button type="submit" className="w-full max-w-md rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 py-4 text-xl font-bold text-black shadow-lg transition-transform hover:scale-105">
+                        <button
+                            type="submit"
+                            className="w-full max-w-md rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 py-4 text-xl font-bold text-black shadow-lg transition-transform hover:scale-105"
+                        >
                             Rezervasyonu Tamamla
                         </button>
                     </div>
                 </form>
+
             </div>
         </div>
     );
