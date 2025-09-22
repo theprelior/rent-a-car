@@ -1,24 +1,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type Car, type PricingTier } from "@prisma/client";
+import { type Car, type PricingTier,type Booking } from "@prisma/client";
 
 // Tip tanımını güncelliyoruz
-type CarWithTiers = Car & {
+type CarWithDetails = Car & {
   pricingTiers: PricingTier[];
+  bookings: Booking[];
 };
 
-export function CarCard({ car }: { car: CarWithTiers }) {
+export function CarCard({ car }: { car: CarWithDetails  }) {
   // En düşük günlük fiyatı bulmak için bir mantık ekleyelim
   // Bu, "Fiyatlar ...'dan başlıyor" demek için kullanılır.
   const startingPrice = car.pricingTiers.reduce((min, tier) => {
     const rate = Number(tier.dailyRate);
     return rate < min ? rate : min;
   }, Number(car.basePrice)); // Başlangıç olarak basePrice'ı al
+  const isCurrentlyBooked = car.bookings && car.bookings.length > 0;
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl bg-neutral-900 shadow-lg transition-transform duration-300 hover:scale-105 border border-neutral-800">
-      <Link href={`/cars/${car.id.toString()}`} className="block">
+     <Link href={`/cars/${car.id.toString()}`} className="block">
         <div className="relative h-56 w-full">
           <Image
             src={car.imageUrl ?? '/car-placeholder.png'}
@@ -26,6 +28,15 @@ export function CarCard({ car }: { car: CarWithTiers }) {
             layout="fill"
             objectFit="cover"
           />
+          
+          {/* YENİ: "Kullanımda" şeridi */}
+          {isCurrentlyBooked && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div className="absolute -bottom-10 -left-10 w-48 h-16 bg-red-600/90 transform -rotate-45 flex items-end justify-center">
+                    <span className="text-white font-bold text-lg pb-1">Kullanımda</span>
+                </div>
+            </div>
+          )}
         </div>
       </Link>
       <div className="flex flex-1 flex-col p-6">

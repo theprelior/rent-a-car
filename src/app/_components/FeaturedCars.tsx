@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { type Car, type PricingTier } from "@prisma/client";
+import { type Car, type PricingTier, type Booking} from "@prisma/client";
 import { CarCard } from "./CarCard";
 
 import useEmblaCarousel from 'embla-carousel-react';
@@ -13,16 +13,16 @@ const IconChevronLeft = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24
 const IconChevronRight = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>);
 
 // DÜZELTME 1: CarCard'ın da kullandığı doğru tipi burada tanımlıyoruz
-type CarWithTiers = Car & {
+type CarWithDetails = Car & {
   pricingTiers: PricingTier[];
+  bookings: Booking[];
 };
 
 // DÜZELTME 2: Prop'un tipini Car[] yerine CarWithTiers[] yapıyoruz
 type PropType = {
-  cars: CarWithTiers[]; 
+  cars: CarWithDetails[]; 
   options?: EmblaOptionsType;
 };
-
 export function FeaturedCars({ cars, options }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { ...options, loop: cars.length > 2 },
@@ -51,15 +51,17 @@ export function FeaturedCars({ cars, options }: PropType) {
     <section className="bg-transparent pt-8">
       <div className="container max-w-[1600px] mx-auto px-6 lg:px-12">
         <div className="flex justify-end items-center mb-8 gap-4">
-          <div className="hidden md:flex gap-4">
-            <button onClick={scrollPrev} disabled={prevBtnDisabled} className="rounded-full p-2 bg-neutral-800 text-white transition hover:bg-neutral-700 disabled:opacity-50 border border-neutral-700">
+          {/* DEĞİŞİKLİK: 'hidden' ve 'md:flex' class'ları kaldırıldı */}
+          <div className="flex gap-4">
+            <button onClick={scrollPrev} disabled={prevBtnDisabled} className="...">
               <IconChevronLeft />
             </button>
-            <button onClick={scrollNext} disabled={nextBtnDisabled} className="rounded-full p-2 bg-neutral-800 text-white transition hover:bg-neutral-700 disabled:opacity-50 border border-neutral-700">
+            <button onClick={scrollNext} disabled={nextBtnDisabled} className="...">
               <IconChevronRight />
             </button>
           </div>
         </div>
+        
 
         <div className="embla" ref={emblaRef}>
           <div className="embla__container">

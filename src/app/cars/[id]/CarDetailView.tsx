@@ -7,6 +7,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { api } from "~/trpc/react";
 import { useSearchParams } from "next/navigation";
+import { toDatetimeLocal } from "~/utils/date"; // 1. Yardımcı fonksiyonu import et
+import { useRouter } from "next/navigation";
 
 // --- lucide-react ikonları ---
 import { Fuel, Users, Briefcase, Settings } from "lucide-react";
@@ -41,12 +43,10 @@ export function CarDetailView({
     const { data: extras, isLoading: isLoadingExtras } =
         api.extra.getAllPublic.useQuery();
     const searchParams = useSearchParams();
-
-    const [startDate, setStartDate] = useState<string>(
-        searchParams.get("startDate") ?? ""
-    );
+    const now = new Date();
+    const [startDate, setStartDate] = useState<string>(toDatetimeLocal(now));
     const [endDate, setEndDate] = useState<string>(
-        searchParams.get("endDate") ?? ""
+        toDatetimeLocal(new Date(now.getTime() + 60 * 60 * 1000)) // +1 saat
     );
     const [rentalDays, setRentalDays] = useState(0);
     const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
@@ -65,6 +65,7 @@ export function CarDetailView({
     const [flightNotes, setFlightNotes] = useState('');
     const [specialNotes, setSpecialNotes] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
+    const router = useRouter();
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -72,9 +73,12 @@ export function CarDetailView({
             const end = new Date(endDate);
 
             if (end > start) {
-                const diffTime = Math.abs(end.getTime() - start.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                const days = diffDays > 0 ? diffDays : 0;
+                const diffTime = end.getTime() - start.getTime();
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                // DÜZELTME 1: Aynı gün kiralama için gün sayısını 1 yap
+                // Math.ceil() zaten bunu yapar ama 0'dan küçük olmasını engellemek için Math.max kullanmak daha güvenli.
+                const days = Math.max(1, Math.ceil(diffDays));
                 setRentalDays(days);
 
                 const tier = car.pricingTiers.find(
@@ -121,13 +125,32 @@ export function CarDetailView({
     const handleBookingSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+            alert("Bitiş tarihi ve saati, başlangıç tarih ve saatinden sonra olmalıdır.");
+            return;
+        }
+        if (!dateOfBirth) {
+            alert("Lütfen doğum tarihinizi girin.");
+            return;
+        }
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        if (age < 18) {
+            alert("Rezervasyon yapmak için en az 18 yaşında olmalısınız.");
+            return;
+        }
         if (!paymentMethod) {
             alert("Lütfen bir ödeme yöntemi seçin.");
             return;
         }
 
         // 1. Şirketin WhatsApp numarasını buraya yaz (uluslararası formatta, + olmadan)
-        const companyPhoneNumber = "905301758826"; // Örnek numara, kendi numaranla değiştir.
+        const companyPhoneNumber = "5444798594"; // Örnek numara, kendi numaranla değiştir.
 
         // 2. Formdaki tüm verileri topla ve düzenli bir metin oluştur
         const selectedExtrasText = extras
@@ -136,34 +159,34 @@ export function CarDetailView({
             .join('\n') || 'Ekstra seçilmedi.';
 
         const message = `
-*Yeni Araç Kiralama Talebi*
+            *Yeni Araç Kiralama Talebi*
 
-*Araç Bilgileri:*
-- Araç: *${car.marka} ${car.model} (${car.yil})*
-- Alış Lokasyonu: *${locations.find(l => l.id.toString() === car.locationId)?.name ?? 'Belirtilmedi'}*
-- Alış Tarihi: *${new Date(startDate).toLocaleString('tr-TR')}*
-- Bırakış Tarihi: *${new Date(endDate).toLocaleString('tr-TR')}*
-- Toplam Gün: *${rentalDays}*
+            *Araç Bilgileri:*
+            - Araç: *${car.marka} ${car.model} (${car.yil})*
+            - Alış Lokasyonu: *${locations.find(l => l.id.toString() === car.locationId)?.name ?? 'Belirtilmedi'}*
+            - Alış Tarihi: *${new Date(startDate).toLocaleString('tr-TR')}*
+            - Bırakış Tarihi: *${new Date(endDate).toLocaleString('tr-TR')}*
+            - Toplam Gün: *${rentalDays}*
 
-*Sürücü Bilgileri:*
-- Ad Soyad: *${driverName}*
-- Doğum Tarihi: *${dateOfBirth}*
-- E-posta: *${driverEmail}*
-- Telefon: *${driverPhone}*
+            *Sürücü Bilgileri:*
+            - Ad Soyad: *${driverName}*
+            - Doğum Tarihi: *${dateOfBirth}*
+            - E-posta: *${driverEmail}*
+            - Telefon: *${driverPhone}*
 
-*Ekstralar:*
-${selectedExtrasText}
+            *Ekstralar:*
+            ${selectedExtrasText}
 
-*Notlar:*
-- Uçuş Bilgileri: *${flightNotes || 'Belirtilmedi'}*
-- Özel Notlar: *${specialNotes || 'Belirtilmedi'}*
+            *Notlar:*
+            - Uçuş Bilgileri: *${flightNotes || 'Belirtilmedi'}*
+            - Özel Notlar: *${specialNotes || 'Belirtilmedi'}*
 
-*Ödeme Bilgileri:*
-- Seçilen Yöntem: *${paymentMethod === 'havale' ? 'Havale / EFT' : 'Araç Teslimatında Ödeme'}*
-- Günlük Araç Ücreti: *₺${calculatedPrice.dailyRate.toLocaleString('tr-TR')}*
-- Ekstralar Toplamı: *₺${calculatedPrice.extrasTotal.toLocaleString('tr-TR')}*
-- *TOPLAM ÜCRET: ₺${calculatedPrice.total.toLocaleString('tr-TR')}*
-    `;
+            *Ödeme Bilgileri:*
+            - Seçilen Yöntem: *${paymentMethod === 'havale' ? 'Havale / EFT' : 'Araç Teslimatında Ödeme'}*
+            - Günlük Araç Ücreti: *₺${calculatedPrice.dailyRate.toLocaleString('tr-TR')}*
+            - Ekstralar Toplamı: *₺${calculatedPrice.extrasTotal.toLocaleString('tr-TR')}*
+            - *TOPLAM ÜCRET: ₺${calculatedPrice.total.toLocaleString('tr-TR')}*
+                `;
 
         // 3. Mesajı URL formatına uygun hale getir
         const encodedMessage = encodeURIComponent(message.trim());
@@ -173,8 +196,17 @@ ${selectedExtrasText}
         window.open(whatsappUrl, '_blank');
 
         // İsteğe bağlı: Kullanıcıyı bir "Teşekkürler" sayfasına yönlendirebilirsin
-        // router.push('/tesekkurler');
+        alert("Rezervasyon isteginiz iletilmistir. Tesekkurler.")
+        router.push('/');
     };
+    // YENİ: Doğum tarihi input'u için maksimum seçilebilir tarihi belirle
+    // (Bugünden 18 yıl öncesi)
+    const maxDateOfBirth = new Date();
+    maxDateOfBirth.setFullYear(maxDateOfBirth.getFullYear() - 18);
+    const maxDobString = maxDateOfBirth.toISOString().split("T")[0];
+    const nowAsInputMin = toDatetimeLocal(new Date());
+
+
 
     return (
         <div className="bg-black text-white min-h-screen pt-16">
@@ -186,20 +218,18 @@ ${selectedExtrasText}
                             {car.marka} {car.model}
                         </span>
                         <div className="flex items-center space-x-6 text-sm font-normal text-gray-300 mt-2 sm:mt-0">
+                            {/* DEĞİŞİKLİK: İkonların boyutları responsive yapıldı */}
                             <span className="flex items-center gap-2">
-                                <Fuel className="h-10 w-10 text-yellow-400" /> {car.yakitTuru}
+                                <Fuel className="h-6 w-6 text-yellow-400 sm:h-8 sm:w-8" /> {car.yakitTuru}
                             </span>
                             <span className="flex items-center gap-2">
-                                <Settings className="h-10 w-10 text-yellow-400" />{" "}
-                                {car.vitesTuru.replace("_", " ")}
+                                <Settings className="h-6 w-6 text-yellow-400 sm:h-8 sm:w-8" /> {car.vitesTuru.replace("_", " ")}
                             </span>
                             <span className="flex items-center gap-2">
-                                <Users className="h-10 w-10 text-yellow-400" /> {car.koltukSayisi}{" "}
-                                Koltuk
+                                <Users className="h-6 w-6 text-yellow-400 sm:h-8 sm:w-8" /> {car.koltukSayisi} Koltuk
                             </span>
                             <span className="flex items-center gap-2">
-                                <Briefcase className="h-10 w-10 text-yellow-400" />{" "}
-                                {car.bagajSayisi ?? "N/A"} Bagaj
+                                <Briefcase className="h-6 w-6 text-yellow-400 sm:h-8 sm:w-8" /> {car.bagajSayisi ?? "N/A"} Bagaj
                             </span>
                         </div>
                     </h1>
@@ -224,10 +254,12 @@ ${selectedExtrasText}
                                     <label className="text-sm font-semibold text-gray-400">Alış Tarihi</label>
                                     <input
                                         type="datetime-local"
-                                        value={startDate} // State'ten gelen değeri kullanır
+                                        value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="input-style mt-1 bg-neutral-700 border-neutral-700 [color-scheme:dark]"
-                                    />                                </div>
+                                        min={toDatetimeLocal(now)}
+                                        className="input-style bg-neutral-700 [color-scheme:dark]"
+                                        required
+                                    />                        </div>
                                 <div>
                                     <label className="text-sm font-semibold text-gray-400">Bırakış Yeri</label>
                                     <select defaultValue={car.location?.id} className="input-style mt-1 bg-neutral-700 border-neutral-700">
@@ -238,10 +270,12 @@ ${selectedExtrasText}
                                     <label className="text-sm font-semibold text-gray-400">Bırakış Tarihi</label>
                                     <input
                                         type="datetime-local"
-                                        value={endDate} // State'ten gelen değeri kullanır
+                                        value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="input-style mt-1 bg-neutral-700 border-neutral-700 [color-scheme:dark]"
-                                    />                                </div>
+                                        min={startDate ? toDatetimeLocal(new Date(startDate)) : toDatetimeLocal(now)}
+                                        className="input-style bg-neutral-700 [color-scheme:dark]"
+                                        required
+                                    />                      </div>
                             </div>
                             <div className="mt-6 border-t border-neutral-700 pt-4 space-y-2">
                                 <div className="flex justify-between text-gray-300"><p>Kiralama Süresi:</p> <p className="font-semibold text-white">{rentalDays} Gün</p></div>
@@ -313,6 +347,7 @@ ${selectedExtrasText}
                                 <input
                                     type="date"
                                     value={dateOfBirth}
+                                    max={maxDobString} // Gelecekte bir tarih veya 18 yaşından küçük olmasını engeller
                                     onChange={(e) => setDateOfBirth(e.target.value)}
                                     required
                                     className="input-style bg-neutral-700 [color-scheme:dark]"

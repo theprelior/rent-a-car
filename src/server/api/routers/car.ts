@@ -80,6 +80,14 @@ export const carRouter = createTRPCRouter({
         include: {
           pricingTiers: true,
           location: true,
+            bookings: {
+            where: {
+              AND: [
+                { startDate: { lte: new Date() } }, // Başlangıç tarihi geçmişte veya şimdi
+                { endDate: { gte: new Date() } },   // Bitiş tarihi gelecekte veya şimdi
+              ],
+            },
+          },
         },
       });
     }),
