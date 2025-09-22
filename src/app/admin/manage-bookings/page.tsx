@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import { api } from "~/trpc/react";
+import { UserPlus, User } from "lucide-react"; // İkonları import ediyoruz
 
 export default function AdminBookingsPage() {
-  // 1. Tüm rezervasyonları tRPC ile çekiyoruz
   const { data: bookings, isLoading, error, refetch } = api.booking.getAll.useQuery();
 
-  // 2. Rezervasyon silme işlemi için mutation'ı hazırlıyoruz
   const deleteBookingMutation = api.booking.delete.useMutation({
     onSuccess: (data) => {
       alert(data.message);
-      // Silme işlemi başarılı olunca listeyi otomatik olarak yenile
       refetch();
     },
     onError: (error) => {
@@ -19,7 +17,6 @@ export default function AdminBookingsPage() {
     },
   });
 
-  // 3. Silme butonuna tıklandığında çalışacak fonksiyon
   const handleDelete = (bookingId: number) => {
     if (window.confirm("Bu rezervasyonu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) {
       deleteBookingMutation.mutate({ id: bookingId });
@@ -27,17 +24,29 @@ export default function AdminBookingsPage() {
   };
 
   if (isLoading) {
-    return <div>Yükleniyor...</div>;
+    return <div className="text-white text-center p-10">Yükleniyor...</div>;
   }
 
   if (error) {
-    return <div>Bir hata oluştu: {error.message}</div>;
+    return <div className="text-red-500 text-center p-10">Bir hata oluştu: {error.message}</div>;
   }
 
   return (
     <div className="rounded-lg bg-gray-800 p-6 text-white">
-      <h1 className="mb-6 text-3xl font-bold">Rezervasyon Yönetimi</h1>
-      
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-3xl font-bold mb-4 sm:mb-0">Rezervasyon Yönetimi</h1>
+        <div className="flex gap-4">
+          <Link href="/admin/users" className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 font-bold text-white hover:bg-blue-700">
+            <User size={18} />
+            <span>Üye İçin Oluştur</span>
+          </Link>
+          <Link href="/admin/bookings/guest" className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700">
+            <UserPlus size={18} />
+            <span>Misafir İçin Oluştur</span>
+          </Link>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-700">
@@ -55,7 +64,13 @@ export default function AdminBookingsPage() {
               bookings.map((booking) => (
                 <tr key={booking.id} className="border-b border-gray-700 hover:bg-gray-600">
                   <td className="px-4 py-2">{booking.id}</td>
-                  <td className="px-4 py-2">{booking.user.name ?? booking.user.email}</td>
+                  <td className="px-4 py-2">
+                    {booking.user ? (
+                      <span className="font-semibold">{booking.user.name ?? booking.user.email}</span>
+                    ) : (
+                      <span className="italic text-gray-400">{booking.guestName} (Misafir)</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2">{booking.car.marka} {booking.car.model}</td>
                   <td className="px-4 py-2">{new Date(booking.startDate).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-2">{new Date(booking.endDate).toLocaleString('tr-TR')}</td>

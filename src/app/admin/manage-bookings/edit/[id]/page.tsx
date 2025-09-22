@@ -48,7 +48,7 @@ export default function EditBookingPage() {
     },
     { enabled: !!startDate && !!endDate }
   );
-  
+
   // 4. Rezervasyonu güncelleyecek mutation
   const updateBookingMutation = api.booking.update.useMutation({
     onSuccess: () => {
@@ -80,18 +80,24 @@ export default function EditBookingPage() {
     <div className="rounded-lg bg-gray-800 p-6 text-white">
       <h1 className="mb-2 text-3xl font-bold">Rezervasyonu Düzenle</h1>
       <p className="mb-6 text-gray-400">
-        Kullanıcı: <span className="font-semibold">{bookingData.user.name ?? bookingData.user.email}</span>
+        Kullanıcı:  <span className="font-semibold">
+          {/* DÜZELTME: user'ın varlığını kontrol et */}
+          {bookingData.user
+            ? (bookingData.user.name ?? bookingData.user.email)
+            : `${bookingData.guestName} (Misafir)`
+          }
+        </span>
       </p>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <label className="mb-2 block font-semibold">Başlangıç Tarihi</label>
-            <input type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="input-style"/>
+            <input type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="input-style" />
           </div>
           <div>
             <label className="mb-2 block font-semibold">Bitiş Tarihi</label>
-            <input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="input-style"/>
+            <input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="input-style" />
           </div>
         </div>
         <div>

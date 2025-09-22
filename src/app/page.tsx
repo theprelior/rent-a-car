@@ -66,18 +66,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       {/* Öne Çıkan Araçlar */}
       <section
         id="featured-cars"
-        className="relative z-0 pt-16 pb-16 bg-cover bg-center"
+        // DEĞİŞİKLİK 1: Bölümün üst ve alt boşlukları azaltıldı (pt-16 pb-16 -> py-20)
+        className="relative z-0 py-20 bg-cover bg-center"
         style={{ backgroundImage: "url('/banner_Background.png')" }}
       >
-        {/* Arka planı karartmak için overlay */}
         <div className="absolute inset-0 bg-black/70"></div>
-
         <div className="relative container mx-auto px-4">
-            <h2 className="text-4xl text-center font-extrabold tracking-tight text-white sm:text-5xl bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl text-center font-extrabold tracking-tight text-white sm:text-5xl bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
             Şu An Müsait Olan Araçlarımız
           </h2>
-        {/* DEĞİŞİKLİK 2: Başlık altındaki boşluk azaltıldı (mb-10 -> mb-8) */}
-          <p className="mb-8 text-center text-xl tracking-wide drop-shadow-lg text-gray-400">
+          {/* DEĞİŞİKLİK 2: Başlık ve araçlar arasındaki boşluk azaltıldı (mb-8 -> mb-4) */}
+          <p className="mb-4 text-center text-lg tracking-wide text-gray-400">
             Her ihtiyaca ve bütçeye uygun, popüler araçlarımızı keşfedin.
           </p>
           <FeaturedCars cars={cars} />

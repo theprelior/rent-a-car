@@ -9,8 +9,8 @@ import { FloatingActionButtons } from "./_components/FloatingActionButtons";
 import { headers } from "next/headers"; // <-- 1. headers'ı import et
 
 export const metadata: Metadata = {
-  title: "Araba Kiralama Projesi",
-  description: "Tolunay Akkoyun tarafından geliştirildi.",
+  title: "RENTORA",
+  description: "ThePrelior tarafından geliştirildi.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

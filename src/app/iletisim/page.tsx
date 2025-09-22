@@ -33,18 +33,18 @@ export default function IletisimPage() {
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
                   <IconMapPin />
-                  <p className="text-lg text-gray-300">İskenderun, Hatay, Türkiye</p>
+                  <p className="text-lg text-gray-300">Belediye Evleri Mahallesi 84248 Sokak Feyz Apt No:8 Çukurova/ADANA</p>
                 </div>
                 <div className="flex items-start space-x-4">
                   <IconPhone />
                   <a href="tel:+905551234567" className="text-lg text-gray-300 transition hover:text-yellow-400">
-                    +90 555 123 45 67
+                    +90 544 479 85 94
                   </a>
                 </div>
                 <div className="flex items-start space-x-4">
                   <IconMail />
-                  <a href="mailto:info@rentora.com" className="text-lg text-gray-300 transition hover:text-yellow-400">
-                    info@rentora.com
+                  <a href="mailto:rentorarentacar@gmail.com" className="text-lg text-gray-300 transition hover:text-yellow-400">
+                    rentorarentacar@gmail.com
                   </a>
                 </div>
               </div>

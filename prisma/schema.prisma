@@ -120,11 +120,28 @@ model Booking {
   carId     BigInt   @map("car_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  userId    String   @map("user_id")
+  
+  // --- DEĞİŞİKLİKLER ---
+  // 1. userId artık opsiyonel. Rezervasyon bir üyeye ait olmayabilir.
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   car       Car      @relation(fields: [carId], references: [id])
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guestName   String? @map("guest_name")
+  guestPhone  String? @map("guest_phone")
+  guestEmail  String? @map("guest_email")
+  
+  totalPrice Decimal?       @db.Decimal(10, 2)
+  status     BookingStatus? @default(PENDING)
+  notes      String?       @db.Text
 
   @@map("rezervasyonlar")
+}
+
+enum BookingStatus {
+  PENDING    // Onay Bekliyor
+  CONFIRMED  // Onaylandı
+  CANCELLED  // İptal Edildi
+  COMPLETED  // Tamamlandı
 }
 
 model ContactMessage {

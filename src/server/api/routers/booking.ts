@@ -75,17 +75,27 @@ export const bookingRouter = createTRPCRouter({
   }),
 
   // YENİ: Adminin bir kullanıcı adına rezervasyon oluşturması için
-  createByAdmin: adminProcedure
+    createByAdmin: adminProcedure
     .input(
       z.object({
-        userId: z.string(),
+        // DÜZELTME: userId'yi opsiyonel yapıyoruz
+        userId: z.string().optional(), 
         carId: z.bigint(),
         startDate: z.date(),
         endDate: z.date(),
+        guestName: z.string().optional(),
+        guestPhone: z.string().optional(),
+        guestEmail: z.string().email().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Sunucu tarafında son bir kez daha aracın müsaitliğini kontrol et (güvenlik için)
+      if (!input.userId && !input.guestName) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Rezervasyon için bir üye seçilmeli veya misafir adı girilmelidir.',
+        });
+      }
+
       const overlappingBookings = await ctx.db.booking.count({
         where: {
           carId: input.carId,
@@ -103,14 +113,15 @@ export const bookingRouter = createTRPCRouter({
         });
       }
 
-      // Her şey yolundaysa rezervasyonu oluştur
       const newBooking = await ctx.db.booking.create({
         data: {
           userId: input.userId,
           carId: input.carId,
           startDate: input.startDate,
           endDate: input.endDate,
-          // İleride buraya toplam fiyat gibi bilgiler de eklenebilir
+          guestName: input.guestName,
+          guestPhone: input.guestPhone,
+          guestEmail: input.guestEmail,
         },
       });
 

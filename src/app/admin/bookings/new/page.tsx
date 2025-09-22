@@ -5,6 +5,16 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import type { Car } from "@prisma/client";
 
+const toDatetimeLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+
 export default function NewBookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -14,6 +24,7 @@ export default function NewBookingPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedCarId, setSelectedCarId] = useState('');
+  const nowAsInputMin = toDatetimeLocal(new Date());
 
   // 1. Sadece seçilen tarihlerde müsait olan araçları getiren tRPC query'si.
   // `enabled` seçeneği sayesinde, sadece başlangıç ve bitiş tarihleri
@@ -46,6 +57,10 @@ export default function NewBookingPage() {
       alert("Lütfen tüm alanları doldurun.");
       return;
     }
+    if (new Date(endDate) <= new Date(startDate)) {
+      alert("Bitiş tarihi, başlangıç tarihinden sonra olmalıdır.");
+      return;
+    }
 
     createBookingMutation.mutate({
       userId,
@@ -70,27 +85,31 @@ export default function NewBookingPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tarih Seçimi */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div>
-            <label className="mb-2 block font-semibold">Başlangıç Tarihi</label>
-            <input
-              type="datetime-local"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-              className="input-style" // globals.css'ten gelen stil
-            />
-          </div>
-          <div>
-            <label className="mb-2 block font-semibold">Bitiş Tarihi</label>
-            <input
-              type="datetime-local"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-              className="input-style"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Başlangıç Tarihi</label>
+          <input
+            type="datetime-local"
+            value={startDate}
+            // DÜZELTME: Geçmiş tarihleri engelle
+            min={nowAsInputMin}
+            onChange={e => setStartDate(e.target.value)}
+            required
+            className="input-style"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Bitiş Tarihi</label>
+          <input
+            type="datetime-local"
+            value={endDate}
+            // DÜZELTME: Başlangıç tarihinden öncesini engelle
+            min={startDate || nowAsInputMin}
+            // DÜZELTME: Başlangıç tarihi seçilmemişse bu alanı pasif yap
+            disabled={!startDate}
+            onChange={e => setEndDate(e.target.value)}
+            required
+            className="input-style disabled:opacity-50"
+          />
         </div>
 
         {/* Araç Seçimi */}
@@ -104,8 +123,8 @@ export default function NewBookingPage() {
             className="input-style"
           >
             <option value="" disabled>
-              {isLoadingCars 
-                ? "Araçlar Yükleniyor..." 
+              {isLoadingCars
+                ? "Araçlar Yükleniyor..."
                 : "Önce tarih seçiniz..."}
             </option>
             {availableCars?.map((car) => (
@@ -115,7 +134,7 @@ export default function NewBookingPage() {
             ))}
           </select>
           {availableCars && availableCars.length === 0 && (
-             <p className="mt-2 text-yellow-500">Seçili tarihlerde müsait araç bulunmuyor.</p>
+            <p className="mt-2 text-yellow-500">Seçili tarihlerde müsait araç bulunmuyor.</p>
           )}
         </div>
 

@@ -1,57 +1,47 @@
-// app/_components/FaqAccordion.tsx
+"use client";
 
-"use client"; // Tıklama ve durum yönetimi için Client Component olmalı
-
-import { useState } from "react";
+import { Disclosure, Transition } from '@headlessui/react';
+import { ChevronDown } from 'lucide-react';
 
 type FaqItem = {
   question: string;
   answer: string;
 };
 
-type FaqAccordionProps = {
-  items: FaqItem[];
-};
-
-// Chevron ikonu
-const IconChevronDown = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9"></polyline>
-  </svg>
-);
-
-export function FaqAccordion({ items }: FaqAccordionProps) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const handleToggle = (index: number) => {
-    // Tıklanan soru zaten açıksa kapat, değilse aç
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
+export function FaqAccordion({ items }: { items: FaqItem[] }) {
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {items.map((item, index) => (
-        <div key={index} className="border-b border-gray-700">
-          <button
-            onClick={() => handleToggle(index)}
-            className="flex w-full items-center justify-between py-5 text-left text-lg font-semibold text-white"
-          >
-            <span>{item.question}</span>
-            <span className={`transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}>
-              <IconChevronDown />
-            </span>
-          </button>
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${
-              openIndex === index ? 'max-h-screen' : 'max-h-0'
-            }`}
-          >
-            <div className="pb-5 pr-4 text-gray-300">
-              <p>{item.answer}</p>
-            </div>
-          </div>
-        </div>
-      ))}
+      <div className="space-y-4">
+        {items.map((item, index) => (
+          <Disclosure key={index} as="div" className="rounded-xl bg-neutral-900 border border-neutral-800">
+            {({ open }) => (
+              <>
+                <Disclosure.Button className="flex w-full items-center justify-between p-6 text-left text-lg font-medium text-white focus:outline-none focus-visible:ring focus-visible:ring-yellow-500/75">
+                  <span>{item.question}</span>
+                  <ChevronDown
+                    className={`${
+                      open ? 'rotate-180 transform' : ''
+                    } h-6 w-6 text-yellow-400 transition-transform duration-300`}
+                  />
+                </Disclosure.Button>
+                
+                <Transition
+                  enter="transition duration-100 ease-out"
+                  enterFrom="transform scale-95 opacity-0"
+                  enterTo="transform scale-100 opacity-100"
+                  leave="transition duration-75 ease-out"
+                  leaveFrom="transform scale-100 opacity-100"
+                  leaveTo="transform scale-95 opacity-0"
+                >
+                  <Disclosure.Panel className="px-6 pb-6 text-base text-gray-400 border-t border-neutral-800 pt-4">
+                    {item.answer}
+                  </Disclosure.Panel>
+                </Transition>
+              </>
+            )}
+          </Disclosure>
+        ))}
+      </div>
     </div>
   );
 }
