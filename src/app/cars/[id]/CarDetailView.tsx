@@ -44,9 +44,11 @@ export function CarDetailView({
         api.extra.getAllPublic.useQuery();
     const searchParams = useSearchParams();
     const now = new Date();
-    const [startDate, setStartDate] = useState<string>(toDatetimeLocal(now));
+    const [startDate, setStartDate] = useState<string>(
+        searchParams.get("startDate") ?? toDatetimeLocal(new Date())
+    );
     const [endDate, setEndDate] = useState<string>(
-        toDatetimeLocal(new Date(now.getTime() + 60 * 60 * 1000)) // +1 saat
+        searchParams.get("endDate") ?? toDatetimeLocal(new Date(new Date().getTime() + 24 * 60 * 60 * 1000)) // +24 saat sonrası
     );
     const [rentalDays, setRentalDays] = useState(0);
     const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
