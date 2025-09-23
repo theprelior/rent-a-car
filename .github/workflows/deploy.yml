@@ -1,0 +1,28 @@
+name: Deploy to Production Server
+
+# Bu Action'ın ne zaman çalışacağını belirtir
+# 'main' branch'ine her push yapıldığında çalışacak
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # Action'ın çalışacağı sanal makine tipi
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Adım: Kodu GitHub'dan sanal makineye çeker
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Adım: Sunucuya SSH ile bağlanıp deploy script'ini çalıştırır
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            /root/deploy.sh
