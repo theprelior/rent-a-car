@@ -4,6 +4,7 @@
 import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 import { CarDetailView } from "./CarDetailView"; // Yeni bileşenimizi import ediyoruz
+import { CarStructuredData } from '~/app/_components/StructuredData';
 
 type CarDetailPageProps = {
   params: {
@@ -43,5 +44,10 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
       carId: tier.carId.toString(),
     })),
   };
-  return <CarDetailView car={plainCar} locations={locations} />;
+  return (<>
+    <head>
+      <CarStructuredData car={car} />
+    </head>
+    <CarDetailView car={plainCar} locations={locations} />
+  </>);
 }
