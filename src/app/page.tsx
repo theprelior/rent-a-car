@@ -39,7 +39,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       >
         <div className="absolute inset-0 bg-black/70"></div>
 
-        <div className="container relative z-10 mx-auto px-4 text-center pb-20">
+       <div className="container relative z-10 mx-auto px-4 text-center pt-16">
           <AnimatedHeroText />
           <div className="mt-12 w-full">
             <CarSearchForm />
