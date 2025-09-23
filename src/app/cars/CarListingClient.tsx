@@ -68,14 +68,14 @@ export function CarListingClient({ initialLocations }: CarListingClientProps) {
         <form onSubmit={handleFilterSubmit} className="p-6 bg-neutral-900 rounded-xl mb-8 border border-neutral-800">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
             <div>
-              <label className="text-sm font-semibold text-gray-400 mb-2 block">Alış Lokasyonu</label>
+              <label className="text-sm font-semibold text-gray-400 mb-2 block">Teslim Alış Lokasyonu</label>
               <select value={pickupLocationId ?? ''} onChange={(e) => setPickupLocationId(Number(e.target.value) || undefined)} className="input-style">
                 <option value="">Lokasyon Seçin</option>
                 {initialLocations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-sm font-semibold text-gray-400 mb-2 block">Bırakış Lokasyonu</label>
+              <label className="text-sm font-semibold text-gray-400 mb-2 block">Teslim Ediş Lokasyonu</label>
               <select value={dropoffLocationId ?? ''} onChange={(e) => setDropoffLocationId(Number(e.target.value) || undefined)} className="input-style">
                 <option value="">Lokasyon Seçin</option>
                 {initialLocations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}

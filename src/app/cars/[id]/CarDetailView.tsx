@@ -165,7 +165,7 @@ export function CarDetailView({
 
             *Araç Bilgileri:*
             - Araç: *${car.marka} ${car.model} (${car.yil})*
-            - Alış Lokasyonu: *${locations.find(l => l.id.toString() === car.locationId)?.name ?? 'Belirtilmedi'}*
+            - Teslim Alış Lokasyonu: *${locations.find(l => l.id.toString() === car.locationId)?.name ?? 'Belirtilmedi'}*
             - Alış Tarihi: *${new Date(startDate).toLocaleString('tr-TR')}*
             - Bırakış Tarihi: *${new Date(endDate).toLocaleString('tr-TR')}*
             - Toplam Gün: *${rentalDays}*

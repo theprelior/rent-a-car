@@ -45,7 +45,7 @@ export default async function FiyatListesiPage() {
               {/* Sol: Resim */}
               <div className="lg:col-span-3">
                 <div className="relative h-52 w-full overflow-hidden rounded-lg">
-                  <Image src={car.imageUrl ?? '/car-placeholder.png'} alt={`${car.marka} ${car.model}`} layout="fill" objectFit="cover" />
+                  <Image src={car.imageUrl ?? '/car-placeholder.png'} alt={`${car.marka} ${car.model}`} layout="fill" objectFit="contain" />
                 </div>
               </div>
 

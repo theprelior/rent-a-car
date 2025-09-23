@@ -23,7 +23,7 @@ export function FloatingActionButtons() {
   
   const actions = [
     { label: 'Telefon', href: 'tel:+90 544 479 85 94', icon: <IconPhone />, bgColor: 'bg-blue-500' },
-    { label: 'Harita', href: 'https://maps.app.goo.gl/koEU61Qz5QMqYHky9?g_st=iwb', icon: <IconMapPin />, bgColor: 'bg-red-500' },
+    { label: 'Harita', href: 'https://maps.app.goo.gl/A18621wYCBRuP6Yi7?g_st=iwb', icon: <IconMapPin />, bgColor: 'bg-red-500' },
     { label: 'E-posta', href: 'mailto:rentorarentacar@gmail.com ', icon: <IconMail />, bgColor: 'bg-gray-500' },
     { label: 'WhatsApp', href: 'https://wa.me/+90 544 479 85 94', icon: <IconWhatsApp />, bgColor: 'bg-green-500' },
   ];

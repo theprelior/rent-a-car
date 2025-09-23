@@ -77,7 +77,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             Şu An Müsait Olan Araçlarımız
           </h2>
           {/* DEĞİŞİKLİK 2: Başlık ve araçlar arasındaki boşluk azaltıldı (mb-8 -> mb-4) */}
-          <p className="mb-4 text-center text-lg tracking-wide text-gray-400">
+          <p className="text-center text-lg tracking-wide text-gray-400">
             Her ihtiyaca ve bütçeye uygun, popüler araçlarımızı keşfedin.
           </p>
           <FeaturedCars cars={cars} />

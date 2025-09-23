@@ -48,7 +48,7 @@ export function FeaturedCars({ cars, options }: PropType) {
   }, [emblaApi, onSelect]);
 
   return (
-    <section className="bg-transparent pt-8">
+    <section className="bg-transparent ">
       <div className="container max-w-[1600px] mx-auto px-6 lg:px-12">
         <div className="flex justify-end items-center mb-8 gap-4">
           {/* DEĞİŞİKLİK: 'hidden' ve 'md:flex' class'ları kaldırıldı */}

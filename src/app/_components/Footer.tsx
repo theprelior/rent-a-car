@@ -18,21 +18,17 @@ export function Footer() {
       <footer className="bg-neutral-900 text-gray-300 border-t-2 border-yellow-500/20">
         <div className="container mx-auto grid grid-cols-1 gap-10 px-4 py-16 md:grid-cols-4">
           
-         <div className="md:col-span-1">
-            {/* 2. DEĞİŞİKLİK: Metin başlık yerine logoyu kullanıyoruz */}
-            <Link href="/" className="inline-block mb-4">
-              <Image
-                src="/logo.png" // public klasöründeki logonun yolu
-                alt="RENTORA Logo"
-                width={150}     // Logonun en-boy oranına göre bu değerleri ayarla
-                height={40}     // Logonun en-boy oranına göre bu değerleri ayarla
-                priority
-              />
+            {/* Sütun 1: Marka */}
+          <div className="md:col-span-1">
+            {/* DEĞİŞİKLİK: Logo yerine Navbar'daki metin stili kullanıldı */}
+            <Link href="/" className="mb-4 inline-block text-2xl font-extrabold tracking-wider bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+              RENTORA
             </Link>
             <p className="text-sm text-gray-400">
               Türkiye'nin dört bir yanında, yolculuklarınızda size eşlik eden güvenilir çözüm ortağınız.
             </p>
           </div>
+
 
           {/* Sütun 2: Hızlı Bağlantılar */}
           <div>

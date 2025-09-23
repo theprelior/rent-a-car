@@ -15,6 +15,7 @@ import { createTransport } from "nodemailer";
 import { render } from "@react-email/render";
 import { VerificationEmail } from "../../../components/VerificationEmail";
 import React from "react"; // eklemeyi unutma
+import { transporter } from "./nodemailerservice";
 
 const createVerificationEmailHtml = ({ userName, verificationLink }: { userName: string, verificationLink: string }) => {
   return `
@@ -66,13 +67,7 @@ const createVerificationEmailHtml = ({ userName, verificationLink }: { userName:
 };
 
 // Nodemailer transporter'ını oluşturuyoruz
-const transporter = createTransport({
-  service: 'gmail',
-  auth: {
-    user: env.GMAIL_EMAIL,
-    pass: env.GMAIL_APP_PASSWORD,
-  },
-});
+
 
 export const userRouter = createTRPCRouter({
   register: publicProcedure

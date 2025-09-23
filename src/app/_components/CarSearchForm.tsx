@@ -57,11 +57,11 @@ export function CarSearchForm() {
         
         {/* Alış & Bırakış Lokasyonları */}
         <div>
-          <label className="mb-2 block text-sm font-semibold text-white">Alış Lokasyonu</label>
+          <label className="mb-2 block text-sm font-semibold text-white">Teslim Alış Lokasyonu</label>
           <div className="relative"><IconMapPin /><select value={pickupLocationId} onChange={(e) => setPickupLocationId(e.target.value)} required className="w-full appearance-none rounded-md border-gray-600 bg-gray-700/50 py-3 pl-11 pr-4 text-white focus:border-blue-500 focus:ring-blue-500"><option value="" disabled>Seçiniz...</option>{isLoadingLocations && <option>Yükleniyor...</option>}{locations?.map(l => ( <option key={l.id} value={l.id}>{l.name}</option> ))}</select></div>
         </div>
         <div>
-          <label className="mb-2 block text-sm font-semibold text-white">Bırakış Lokasyonu</label>
+          <label className="mb-2 block text-sm font-semibold text-white">Teslim Ediş Lokasyonu</label>
           <div className="relative"><IconMapPin /><select value={dropoffLocationId} onChange={(e) => setDropoffLocationId(e.target.value)} required className="w-full appearance-none rounded-md border-gray-600 bg-gray-700/50 py-3 pl-11 pr-4 text-white focus:border-blue-500 focus:ring-blue-500"><option value="" disabled>Seçiniz...</option>{isLoadingLocations && <option>Yükleniyor...</option>}{locations?.map(l => ( <option key={l.id} value={l.id}>{l.name}</option> ))}</select></div>
         </div>
 

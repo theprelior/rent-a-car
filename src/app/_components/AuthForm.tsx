@@ -34,7 +34,7 @@ export function LoginForm({ onSwitchMode, onSuccess }: AuthFormProps) {
 
     const result = await signIn("credentials", {
       redirect: false, // Sayfa yönlendirmesi olmasın, sonucu burada yakalayalım
-      email,
+      email:email.toLowerCase(),
       password,
     });
 
@@ -126,7 +126,7 @@ export function RegisterForm({ onSwitchMode, onSuccess }: AuthFormProps) {
         return;
     }
     // DEĞİŞİKLİK 3: Mutation'ı yeni veri yapısıyla çağırıyoruz
-    registerMutation.mutate({ firstName, lastName, email, password, passwordConfirmation });
+    registerMutation.mutate({ firstName, lastName, email: email.toLowerCase() , password, passwordConfirmation });
   };
   
   return (

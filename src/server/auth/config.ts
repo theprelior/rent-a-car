@@ -52,8 +52,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("E-posta ve şifre girmelisiniz.");
         }
 
+        const email = credentials.email.toLowerCase();
+
         const user = await db.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: email },
         });
 
         if (!user || !user.password) {

@@ -21,14 +21,13 @@ export function CarCard({ car }: { car: CarWithDetails  }) {
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl bg-neutral-900 shadow-lg transition-transform duration-300 hover:scale-105 border border-neutral-800">
      <Link href={`/cars/${car.id.toString()}`} className="block">
-        <div className="relative h-56 w-full">
+       <div className="relative h-56 w-full bg-black">
           <Image
             src={car.imageUrl ?? '/car-placeholder.png'}
             alt={`${car.marka} ${car.model}`}
             layout="fill"
-            objectFit="cover"
+            objectFit="contain" // DEĞİŞİKLİK: 'cover' -> 'contain'
           />
-          
           {/* YENİ: "Kullanımda" şeridi */}
           {isCurrentlyBooked && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
