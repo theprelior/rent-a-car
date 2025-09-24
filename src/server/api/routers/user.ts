@@ -16,6 +16,7 @@ import { render } from "@react-email/render";
 import { VerificationEmail } from "../../../components/VerificationEmail";
 import React from "react"; // eklemeyi unutma
 import { transporter } from "./nodemailerservice";
+import { Role } from "@prisma/client"; 
 
 const createVerificationEmailHtml = ({ userName, verificationLink }: { userName: string, verificationLink: string }) => {
   return `
@@ -243,4 +244,42 @@ export const userRouter = createTRPCRouter({
 
     return { success: true, message: "Doğrulama e-postası tekrar gönderildi." };
   }),
+
+
+  updateUserRole: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        role: z.nativeEnum(Role),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Bir adminin kendi rolünü değiştirmesini engelle
+      if (ctx.session.user.id === input.userId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Kendi rolünüzü değiştiremezsiniz.',
+        });
+      }
+      return ctx.db.user.update({
+        where: { id: input.userId },
+        data: { role: input.role },
+      });
+    }),
+
+  // YENİ: Kullanıcı silen procedure
+  deleteUser: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Bir adminin kendi hesabını silmesini engelle
+      if (ctx.session.user.id === input.userId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Kendi hesabınızı silemezsiniz.',
+        });
+      }
+      return ctx.db.user.delete({
+        where: { id: input.userId },
+      });
+    }),
 });

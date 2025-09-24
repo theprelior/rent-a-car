@@ -20,6 +20,7 @@ export default function NewBookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
+  const userName = searchParams.get("userName");
   const { showAlert } = useAlert(); // Hook'u çağır
 
   // Form state'leri
@@ -84,7 +85,7 @@ export default function NewBookingPage() {
     <div className="rounded-lg bg-gray-800 p-6 text-white">
       <h1 className="mb-6 text-3xl font-bold">Yeni Rezervasyon Oluştur</h1>
       <p className="mb-4 text-gray-400">Kullanıcı ID: <span className="font-mono">{userId}</span></p>
-
+      <p className="mb-4 text-red-400">Kullanıcı: <span className="font-mono">{userName}</span></p>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tarih Seçimi */}
         <div>

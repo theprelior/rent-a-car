@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 import { FaqAccordion } from "../_components/FaqAccordion";
 
 export const metadata: Metadata = {
-  title: "Sıkça Sorulan Sorular | Rentacar",
+  title: "Sıkça Sorulan Sorular | RENTORA",
   description: "Araç kiralama süreciyle ilgili en çok sorulan sorular ve cevapları.",
 };
 

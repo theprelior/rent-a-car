@@ -3,7 +3,7 @@ import { type Metadata } from "next";
 import { Award, Heart, ShieldCheck } from "lucide-react"; // İkonları lucide-react'tan alıyoruz
 
 export const metadata: Metadata = {
-  title: "Hakkımızda | Rentacar",
+  title: "Hakkımızda | RENTORA",
   description: "Rentacar olarak misyonumuz, vizyonumuz ve değerlerimiz hakkında daha fazla bilgi edinin.",
 };
 

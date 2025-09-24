@@ -5,6 +5,12 @@ import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 import { CarDetailView } from "./CarDetailView"; // Yeni bileşenimizi import ediyoruz
 import { CarStructuredData } from '~/app/_components/StructuredData';
+import { type Metadata } from "next";
+
+
+export const metadata: Metadata = {
+  title: "Araç Kiralama | RENTORA",
+};
 
 type CarDetailPageProps = {
   params: {

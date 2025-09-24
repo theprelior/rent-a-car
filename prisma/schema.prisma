@@ -82,7 +82,7 @@ model User {
   emailVerified DateTime? @map("email_verified")
   image         String?
   password      String?
-  role          Role?
+  role          Role      @default(USER)
   phone         String?
   adress        String?
   dateOfBirth   DateTime? @db.Timestamptz(6)

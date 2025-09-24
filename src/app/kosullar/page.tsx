@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 import { ShieldCheck } from "lucide-react"; 
 
 export const metadata: Metadata = {
-  title: "Kiralama Koşulları | Rentacar",
+  title: "Kiralama Koşulları | RENTORA",
   description: "Araç kiralama için gerekli olan ehliyet, yaş, ödeme ve sigorta koşulları hakkında detaylı bilgi alın.",
 };
 

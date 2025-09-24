@@ -18,7 +18,7 @@ export const carRouter = createTRPCRouter({
         locationId: z.number().int().optional(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-        
+
         // Yeni filtreler
         searchTerm: z.string().optional(), // Marka/Model araması için
         yakitTuru: z.nativeEnum(YakitTuru).optional(),
@@ -37,11 +37,15 @@ export const carRouter = createTRPCRouter({
 
       if (input?.startDate && input?.endDate) {
         andConditions.push({
+          // Bu aracın TÜM rezervasyonları...
           bookings: {
             none: {
+              // ...YA arama bitiş tarihinden önce başlamalı...
+              // VEYA arama başlangıç tarihinden sonra bitmeli.
+              // Bu, iki aralığın kesişmemesini sağlar.
               AND: [
-                { startDate: { lt: input.endDate } },
-                { endDate: { gt: input.startDate } },
+                { startDate: { lt: input.endDate } }, // Rezervasyon başlama tarihi arama bitişinden önceyse
+                { endDate: { gt: input.startDate } },  // Rezervasyon, aramadan sonra başlar
               ],
             },
           },
@@ -69,9 +73,9 @@ export const carRouter = createTRPCRouter({
           ],
         });
       }
-      
+
       // Tüm koşulları birleştir
-      if(andConditions.length > 0) {
+      if (andConditions.length > 0) {
         whereClause.AND = andConditions;
       }
 
@@ -80,7 +84,7 @@ export const carRouter = createTRPCRouter({
         include: {
           pricingTiers: true,
           location: true,
-            bookings: {
+          bookings: {
             where: {
               AND: [
                 { startDate: { lte: new Date() } }, // Başlangıç tarihi geçmişte veya şimdi
@@ -93,31 +97,31 @@ export const carRouter = createTRPCRouter({
     }),
 
   getById: publicProcedure
-  .input(z.object({ id: z.bigint() }))
-  .query(async ({ ctx, input }) => {
-    const car = await ctx.db.car.findUnique({
-      where: { id: input.id },
-      include: {
-        location: true,
-        pricingTiers: true,
-      },
-    });
+    .input(z.object({ id: z.bigint() }))
+    .query(async ({ ctx, input }) => {
+      const car = await ctx.db.car.findUnique({
+        where: { id: input.id },
+        include: {
+          location: true,
+          pricingTiers: true,
+        },
+      });
 
-    if (!car) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
+      if (!car) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
 
-    // Decimal -> number dönüşümü
-    const pricingTiers = car.pricingTiers.map(t => ({
-      ...t,
-      dailyRate: Number(t.dailyRate),
-    }));
+      // Decimal -> number dönüşümü
+      const pricingTiers = car.pricingTiers.map(t => ({
+        ...t,
+        dailyRate: Number(t.dailyRate),
+      }));
 
-    return {
-      ...car,
-      pricingTiers,
-    };
-  }),
+      return {
+        ...car,
+        pricingTiers,
+      };
+    }),
 
 
   create: adminProcedure
@@ -140,7 +144,7 @@ export const carRouter = createTRPCRouter({
         sasiNo: z.string().min(1, "Şasi Numarası zorunludur"),
         // Fiyat aralıkları için yeni alan
         basePrice: z.number().min(0, "Fiyat negatif olamaz."), // <-- YENİ ALAN
-
+        category: z.nativeEnum(CarCategory),
         pricingTiers: z.array(z.object({
           minDays: z.number().int().min(1),
           maxDays: z.number().int().min(1),
@@ -202,7 +206,7 @@ export const carRouter = createTRPCRouter({
         ekstraOzellikler: z.array(z.string()).optional(),
         imageUrl: z.string().nullish(),
         locationId: z.number().int().optional(),
-         category: z.nativeEnum(CarCategory).optional(),
+        category: z.nativeEnum(CarCategory).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

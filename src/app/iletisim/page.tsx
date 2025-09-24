@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 import { ContactForm } from "../_components/ContactForm";
 
 export const metadata: Metadata = {
-  title: "İletişim | Rentacar",
+  title: "İletişim | RENTORA",
   description: "Bize ulaşın. Sorularınız, önerileriniz veya iş ortaklıkları için bizimle iletişime geçin.",
 };
 

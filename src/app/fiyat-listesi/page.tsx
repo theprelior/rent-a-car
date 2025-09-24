@@ -7,7 +7,7 @@ import Link from "next/link";
 import { type Car, type PricingTier } from "@prisma/client"; // Tipleri import ediyoruz
 
 export const metadata: Metadata = {
-  title: "Fiyat Listesi | Rentacar",
+  title: "Fiyat Listesi | RENTORA",
   description: "Tüm araçlarımızın detaylı günlük, haftalık ve aylık kiralama fiyatlarını inceleyin.",
 };
 

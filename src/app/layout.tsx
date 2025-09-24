@@ -14,6 +14,8 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
+
+
 // Yüksek kaliteli SVG tekerlek (Yorum satırları kaldırıldı)
 function getWheelSvg(angle: number) {
   const tireColor = "#222";

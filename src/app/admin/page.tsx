@@ -1,5 +1,12 @@
 // app/admin/page.tsx
 
+import { type Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ADMIN PANELI | RENTORA",
+};
+
+
 export default async function AdminDashboardPage() {
   return (
     <div className="flex h-full items-center justify-center rounded-lg bg-gray-800 p-8 text-center text-white">

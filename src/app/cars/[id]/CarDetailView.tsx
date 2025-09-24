@@ -200,7 +200,7 @@ export function CarDetailView({
         window.open(whatsappUrl, '_blank');
 
         // İsteğe bağlı: Kullanıcıyı bir "Teşekkürler" sayfasına yönlendirebilirsin
-        showAlert("Rezervasyon isteginiz iletilmistir. Tesekkurler.")
+        showAlert("Rezervasyon talebiniz iletilmiştir, müşteri temsilcimiz en kısa sürede sizinle iletişime geçecektir. Teşekkür ederiz.")
         router.push('/');
     };
     // YENİ: Doğum tarihi input'u için maksimum seçilebilir tarihi belirle

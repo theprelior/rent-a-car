@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Car, type PricingTier } from "@prisma/client";
+import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, CarCategory, type Car, type PricingTier } from "@prisma/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAlert } from '~/context/AlertContext'; // Hook'u import et
@@ -33,7 +33,7 @@ const initialState = {
   motorHacmi: "", beygirGucu: "", kilometre: "", durum: Durum.Kiralik,
   kasaTipi: KasaTipi.Sedan, cekisTipi: CekisTipi.Onden_cekis, kapiSayisi: "4",
   koltukSayisi: "5", renk: "", plaka: "", donanimPaketi: "",
-  ekstraOzellikler: "", locationId: "", basePrice: "",  bagajSayisi: "2", // <-- YENİ
+  ekstraOzellikler: "", locationId: "", basePrice: "", bagajSayisi: "2", category: CarCategory.EKONOMIK, // <-- YENİ
 };
 
 // Yardımcı FormField bileşeni
@@ -219,7 +219,11 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         <FormField label="Kapı Sayısı"><input name="kapiSayisi" value={formData.kapiSayisi ?? ''} onChange={handleChange} type="number" placeholder="4" className="input-style" /></FormField>
         <FormField label="Koltuk Sayısı"><input name="koltukSayisi" value={formData.koltukSayisi ?? ''} onChange={handleChange} type="number" placeholder="5" className="input-style" /></FormField>
         <FormField label="Bagaj Sayısı"><input name="bagajSayisi" value={formData.bagajSayisi} onChange={handleChange} type="number" placeholder="2" className="input-style" /></FormField>
-
+        <FormField label="Araç Kategorisi *">
+          <select name="category" value={formData.category} onChange={handleChange} className="input-style">
+            {Object.values(CarCategory).map(v => <option key={v} value={v}>{v.replace('_', ' ')}</option>)}
+          </select>
+        </FormField>
         <FormField label="Yakıt Türü *"><select name="yakitTuru" value={formData.yakitTuru} onChange={handleChange} className="input-style">{Object.values(YakitTuru).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>
         <FormField label="Vites Türü *"><select name="vitesTuru" value={formData.vitesTuru} onChange={handleChange} className="input-style">{Object.values(VitesTuru).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>
         <FormField label="Kasa Tipi"><select name="kasaTipi" value={formData.kasaTipi} onChange={handleChange} className="input-style">{Object.values(KasaTipi).map(v => <option key={v} value={v}>{v}</option>)}</select></FormField>
