@@ -2,6 +2,7 @@
 
 import { Role, type User } from "@prisma/client";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 // İkonları bu dosyaya da taşıyalım
 const IconUser = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
@@ -14,13 +15,14 @@ type UserInfoCardProps = {
 };
 
 export function UserInfoCard({ user }: UserInfoCardProps) {
-  
+    const { showAlert } = useAlert(); // Hook'u çağır
+
   const resendMutation = api.user.resendVerificationEmail.useMutation({
     onSuccess: (data) => {
-      alert(data.message);
+      showAlert(data.message);
     },
     onError: (error) => {
-      alert(`Bir hata oluştu: ${error.message}`);
+      showAlert(`Bir hata oluştu: ${error.message}`);
     }
   });
 

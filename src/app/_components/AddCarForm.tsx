@@ -7,6 +7,7 @@ import { api } from "~/trpc/react";
 import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, type Car, type PricingTier } from "@prisma/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 // Sunucudan gelen ve serialize edilmiş araç verisinin tipi
 export type PlainCar = Omit<Car, 'id' | 'basePrice' | 'motorHacmi' | 'pricingTiers'> & {
@@ -43,6 +44,7 @@ const FormField = ({ label, children }: { label: string; children: React.ReactNo
 type AddCarFormProps = { initialData?: PlainCar | null; };
 
 export function AddCarForm({ initialData }: AddCarFormProps) {
+  const { showAlert } = useAlert(); // Hook'u çağır
   const router = useRouter();
   const [formData, setFormData] = useState<any>(initialState);
   const [file, setFile] = useState<File | null>(null);
@@ -85,25 +87,25 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
 
   const createCar = api.car.create.useMutation({
     onSuccess: () => {
-      alert("Araç başarıyla eklendi!");
+      showAlert("Araç başarıyla eklendi!");
       setFormData(initialState);
       setFile(null);
       const fileInput = document.getElementById('car-image') as HTMLInputElement;
       if (fileInput) fileInput.value = "";
       void utils.car.getAll.invalidate();
     },
-    onError: (error) => { alert(`Hata: ${error.message}`); },
+    onError: (error) => { showAlert(`Hata: ${error.message}`); },
   });
 
   const updateCar = api.car.update.useMutation({
     onSuccess: () => {
-      alert("Araç başarıyla güncellendi!");
+      showAlert("Araç başarıyla güncellendi!");
       void utils.car.getAll.invalidate();
       if (initialData?.id) {
         void utils.car.getById.invalidate({ id: BigInt(initialData.id) });
       }
     },
-    onError: (error) => { alert(`Hata: ${error.message}`); },
+    onError: (error) => { showAlert(`Hata: ${error.message}`); },
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,7 +129,7 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
     if (pricingTiers.length > 1) {
       setPricingTiers(pricingTiers.filter((_, i) => i !== index));
     } else {
-      alert("En az bir fiyat aralığı olmalıdır.");
+      showAlert("En az bir fiyat aralığı olmalıdır.");
     }
   };
 
@@ -145,7 +147,7 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         imageUrl = data.url;
       } catch (error) {
         console.error(error);
-        alert("Resim yüklenirken bir hata oluştu.");
+        showAlert("Resim yüklenirken bir hata oluştu.");
         return;
       }
     }

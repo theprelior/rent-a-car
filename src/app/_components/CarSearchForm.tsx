@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { toDatetimeLocal } from "~/utils/date"; // <-- Yardımcı fonksiyonu import et
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 // İkonlar
 const IconMapPin = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg> );
@@ -22,11 +23,11 @@ export function CarSearchForm() {
   const [startTime, setStartTime] = useState("10:00");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("10:00");
-
+  const {showAlert} = useAlert();
   const handleSearch = (e: React.FormEvent) => {
       e.preventDefault();
         if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-        alert("Bitiş tarihi, başlangıç tarihinden sonra olmalıdır.");
+        showAlert("Bitiş tarihi, başlangıç tarihinden sonra olmalıdır.");
         return;
     }
     const params = new URLSearchParams();
@@ -81,13 +82,13 @@ export function CarSearchForm() {
                     />
                 </div>
                 <div className="relative w-2/5">
-                    <IconClock />
+                 
                     <input 
                         value={startTime} 
                         onChange={(e) => setStartTime(e.target.value)} 
                         type="time" 
                         required 
-                        className="w-full rounded-md border-gray-600 bg-gray-700/50 py-3 pl-11 pr-2 text-white focus:border-blue-500 focus:ring-blue-500 [color-scheme:dark]" 
+                        className="w-full rounded-md border-gray-600 bg-gray-700/50 py-3 pr-2 text-white focus:border-blue-500 focus:ring-blue-500 [color-scheme:dark]" 
                     />
                 </div>
             </div>
@@ -110,13 +111,13 @@ export function CarSearchForm() {
                     />
                 </div>
                 <div className="relative w-2/5">
-                    <IconClock />
+                  
                     <input 
                         value={endTime} 
                         onChange={(e) => setEndTime(e.target.value)} 
                         type="time" 
                         required 
-                        className="w-full rounded-md border-gray-600 bg-gray-700/50 py-3 pl-11 pr-2 text-white focus:border-blue-500 focus:ring-blue-500 [color-scheme:dark]" 
+                        className="w-full rounded-md border-gray-600 bg-gray-700/50 py-3 pr-2 text-white focus:border-blue-500 focus:ring-blue-500 [color-scheme:dark]" 
                     />
                 </div>
             </div>

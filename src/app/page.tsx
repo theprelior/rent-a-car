@@ -39,7 +39,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       >
         <div className="absolute inset-0 bg-black/70"></div>
 
-       <div className="container relative z-10 mx-auto px-4 text-center pt-16">
+        <div className="container relative z-10 mx-auto px-4 text-center pt-16">
           <AnimatedHeroText />
           <div className="mt-12 w-full">
             <CarSearchForm />
@@ -49,13 +49,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
 
         {/* Aşağı Kaydır Oku */}
-        <div className="absolute bottom-6 z-20">
+        <div className="relative z-20 mt-10 flex justify-center">
           <Link href="#featured-cars" aria-label="Aşağı kaydır">
-            <svg className="h-8 w-8 animate-bounce text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            <svg
+              className="h-8 w-8 animate-bounce text-yellow-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </Link>
         </div>
+
 
         {/* DALGALI GEÇİŞ */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">

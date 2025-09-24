@@ -9,6 +9,7 @@ import { api } from "~/trpc/react";
 import { useSearchParams } from "next/navigation";
 import { toDatetimeLocal } from "~/utils/date"; // 1. Yardımcı fonksiyonu import et
 import { useRouter } from "next/navigation";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 // --- lucide-react ikonları ---
 import { Fuel, Users, Briefcase, Settings } from "lucide-react";
@@ -68,6 +69,7 @@ export function CarDetailView({
     const [specialNotes, setSpecialNotes] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
     const router = useRouter();
+    const { showAlert } = useAlert(); // Hook'u çağır
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -128,11 +130,11 @@ export function CarDetailView({
         e.preventDefault();
 
         if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-            alert("Bitiş tarihi ve saati, başlangıç tarih ve saatinden sonra olmalıdır.");
+            showAlert("Bitiş tarihi ve saati, başlangıç tarih ve saatinden sonra olmalıdır.");
             return;
         }
         if (!dateOfBirth) {
-            alert("Lütfen doğum tarihinizi girin.");
+            showAlert("Lütfen doğum tarihinizi girin.");
             return;
         }
         const today = new Date();
@@ -143,11 +145,11 @@ export function CarDetailView({
             age--;
         }
         if (age < 18) {
-            alert("Rezervasyon yapmak için en az 18 yaşında olmalısınız.");
+            showAlert("Rezervasyon yapmak için en az 18 yaşında olmalısınız.");
             return;
         }
         if (!paymentMethod) {
-            alert("Lütfen bir ödeme yöntemi seçin.");
+            showAlert("Lütfen bir ödeme yöntemi seçin.");
             return;
         }
 
@@ -198,7 +200,7 @@ export function CarDetailView({
         window.open(whatsappUrl, '_blank');
 
         // İsteğe bağlı: Kullanıcıyı bir "Teşekkürler" sayfasına yönlendirebilirsin
-        alert("Rezervasyon isteginiz iletilmistir. Tesekkurler.")
+        showAlert("Rezervasyon isteginiz iletilmistir. Tesekkurler.")
         router.push('/');
     };
     // YENİ: Doğum tarihi input'u için maksimum seçilebilir tarihi belirle

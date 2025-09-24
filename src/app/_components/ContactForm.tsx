@@ -2,22 +2,24 @@
 
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const { showAlert } = useAlert(); // Hook'u çağır
 
   const sendMessageMutation = api.contact.sendMessage.useMutation({
     onSuccess: (data) => {
-      alert(data.message);
+      showAlert(data.message);
       // Formu temizle
       setName('');
       setEmail('');
       setMessage('');
     },
     onError: (error) => {
-      alert(`Bir hata oluştu: ${error.message}`);
+      showAlert(`Bir hata oluştu: ${error.message}`);
     },
   });
 

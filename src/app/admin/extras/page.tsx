@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export default function AdminExtrasPage() {
   const { data: extras, isLoading, refetch } = api.extra.getAll.useQuery();
+  const { showAlert } = useAlert(); // Hook'u çağır
+  
   const deleteExtraMutation = api.extra.delete.useMutation({
     onSuccess: () => {
-      alert("Ekstra başarıyla silindi.");
+      showAlert("Ekstra başarıyla silindi.");
       refetch();
     },
-    onError: (error) => alert(`Hata: ${error.message}`),
+    onError: (error) => showAlert(`Hata: ${error.message}`),
   });
 
   const handleDelete = (id: number) => {

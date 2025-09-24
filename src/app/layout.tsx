@@ -7,7 +7,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { Footer } from "./_components/Footer";
 import { FloatingActionButtons } from "./_components/FloatingActionButtons";
 import { useEffect } from "react";
-
+import { AlertProvider } from "~/context/AlertContext"; // 1. Provider'ı import et
+import { AlertModal } from "./_components/AlertModal";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -67,10 +68,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <TRPCReactProvider>
           <NextAuthProvider>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-            <FloatingActionButtons />
+          <AlertProvider>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+              <FloatingActionButtons />
+
+              {/* 4. Modal'ı en sona ekle ki her şeyin üzerinde görünsün */}
+              <AlertModal />
+            </AlertProvider>
           </NextAuthProvider>
         </TRPCReactProvider>
       </body>

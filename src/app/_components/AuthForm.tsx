@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 type AuthFormProps = {
   onSwitchMode: (mode: 'login' | 'register') => void;
@@ -105,16 +106,17 @@ export function RegisterForm({ onSwitchMode, onSuccess }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const { showAlert } = useAlert(); // Hook'u çağır
 
   const registerMutation = api.user.register.useMutation({
     onSuccess: () => {
-      alert("Kaydınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.");
+      showAlert("Kaydınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.");
       onSuccess();
       onSwitchMode('login');
     },
     onError: (error) => {
       // Zod refine hatasını da burada yakalayabiliriz
-      alert(`Kayıt olurken bir hata oluştu: ${error.message}`);
+      showAlert(`Kayıt olurken bir hata oluştu: ${error.message}`);
     },
   });
 
@@ -122,7 +124,7 @@ export function RegisterForm({ onSwitchMode, onSuccess }: AuthFormProps) {
     e.preventDefault();
     // DEĞİŞİKLİK 2: Client-side'da da hızlı bir kontrol yapalım
     if (password !== passwordConfirmation) {
-        alert("Şifreler uyuşmuyor!");
+        showAlert("Şifreler uyuşmuyor!");
         return;
     }
     // DEĞİŞİKLİK 3: Mutation'ı yeni veri yapısıyla çağırıyoruz

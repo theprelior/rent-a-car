@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { api } from "~/trpc/react";
 import { UserPlus, User } from "lucide-react"; // İkonları import ediyoruz
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export default function AdminBookingsPage() {
   const { data: bookings, isLoading, error, refetch } = api.booking.getAll.useQuery();
-
+  const { showAlert } = useAlert(); // Hook'u çağır
+  
   const deleteBookingMutation = api.booking.delete.useMutation({
     onSuccess: (data) => {
-      alert(data.message);
+      showAlert(data.message);
       refetch();
     },
     onError: (error) => {
-      alert(`Hata: ${error.message}`);
+      showAlert(`Hata: ${error.message}`);
     },
   });
 

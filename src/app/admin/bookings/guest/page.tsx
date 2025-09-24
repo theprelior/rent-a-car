@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export default function NewGuestBookingPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function NewGuestBookingPage() {
   const [guestName, setGuestName] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
+  const { showAlert } = useAlert(); // Hook'u çağır
 
   const { data: availableCars, isLoading: isLoadingCars } = api.car.getAll.useQuery(
     {
@@ -26,17 +28,17 @@ export default function NewGuestBookingPage() {
   const utils = api.useUtils();
   const createBookingMutation = api.booking.createByAdmin.useMutation({
     onSuccess: () => {
-      alert("Misafir rezervasyonu başarıyla oluşturuldu!");
+      showAlert("Misafir rezervasyonu başarıyla oluşturuldu!");
       utils.booking.getAll.invalidate();
       router.push("/admin/manage-bookings"); 
     },
-    onError: (error) => alert(`Bir hata oluştu: ${error.message}`),
+    onError: (error) => showAlert(`Bir hata oluştu: ${error.message}`),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestName || !guestPhone || !selectedCarId || !startDate || !endDate) {
-      alert("Lütfen tüm zorunlu alanları doldurun.");
+      showAlert("Lütfen tüm zorunlu alanları doldurun.");
       return;
     }
 

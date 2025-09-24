@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import type { Extra } from "@prisma/client";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 type ExtraFormProps = {
   // Düzenleme modu için mevcut veriyi prop olarak alacağız
@@ -13,6 +14,7 @@ type ExtraFormProps = {
 export function ExtraForm({ initialData }: ExtraFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
+  const { showAlert } = useAlert(); // Hook'u çağır
 
   // Form state'leri
   const [name, setName] = useState('');
@@ -34,7 +36,7 @@ export function ExtraForm({ initialData }: ExtraFormProps) {
   // Yeni ekstra oluşturma mutation'ı
   const createExtra = api.extra.create.useMutation({
     onSuccess: () => {
-      alert("Ekstra başarıyla oluşturuldu.");
+      showAlert("Ekstra başarıyla oluşturuldu.");
       utils.extra.getAll.invalidate(); // Liste sayfasındaki veriyi yenile
       router.push("/admin/extras");
     },
@@ -44,11 +46,11 @@ export function ExtraForm({ initialData }: ExtraFormProps) {
   // Ekstra güncelleme mutation'ı
   const updateExtra = api.extra.update.useMutation({
     onSuccess: () => {
-      alert("Ekstra başarıyla güncellendi.");
+      showAlert("Ekstra başarıyla güncellendi.");
       utils.extra.getAll.invalidate();
       router.push("/admin/extras");
     },
-    onError: (error) => alert(`Hata: ${error.message}`),
+    onError: (error) => showAlert(`Hata: ${error.message}`),
   });
 
   const handleSubmit = (e: React.FormEvent) => {

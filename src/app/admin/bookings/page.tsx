@@ -5,10 +5,12 @@
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export default function NewBookingPage() {
     const searchParams = useSearchParams();
     const userId = searchParams.get("userId");
+  const { showAlert } = useAlert(); // Hook'u çağır
 
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
@@ -28,17 +30,17 @@ export default function NewBookingPage() {
     
     const createBooking = api.booking.createByAdmin.useMutation({
         onSuccess: () => {
-            alert("Rezervasyon başarıyla oluşturuldu!");
+            showAlert("Rezervasyon başarıyla oluşturuldu!");
         },
         onError: (err) => {
-            alert("Hata: " + err.message);
+            showAlert("Hata: " + err.message);
         }
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!userId || !carId || !startDate || !endDate) {
-            alert("Lütfen tüm alanları doldurun.");
+            showAlert("Lütfen tüm alanları doldurun.");
             return;
         }
         createBooking.mutate({

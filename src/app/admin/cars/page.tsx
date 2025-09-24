@@ -3,19 +3,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "~/trpc/react"; // <-- 2. 'react' importunu kullanıyoruz
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export default function AdminCarsPage() {
   // 3. Veriyi useQuery hook'u ile çekiyoruz
   const { data: cars, isLoading, error, refetch } = api.car.getAll.useQuery();
-
+  const { showAlert } = useAlert(); // Hook'u çağır
+  
   // 4. Araç silme işlemi için mutation'ı hazırlıyoruz
   const deleteCarMutation = api.car.delete.useMutation({
     onSuccess: (data) => {
-      alert(data.message);
+      showAlert(data.message);
       refetch(); // Silme işlemi sonrası listeyi yenile
     },
     onError: (error) => {
-      alert(`Hata: ${error.message}`);
+      showAlert(`Hata: ${error.message}`);
     },
   });
 

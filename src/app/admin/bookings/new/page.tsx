@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import type { Car } from "@prisma/client";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 const toDatetimeLocal = (date: Date): string => {
   const year = date.getFullYear();
@@ -19,6 +20,7 @@ export default function NewBookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
+  const { showAlert } = useAlert(); // Hook'u çağır
 
   // Form state'leri
   const [startDate, setStartDate] = useState('');
@@ -42,11 +44,11 @@ export default function NewBookingPage() {
   // 2. Rezervasyonu oluşturacak olan tRPC mutation'ı
   const createBookingMutation = api.booking.createByAdmin.useMutation({
     onSuccess: () => {
-      alert("Rezervasyon başarıyla oluşturuldu!");
+      showAlert("Rezervasyon başarıyla oluşturuldu!");
       router.push("/admin/users"); // İşlem bitince kullanıcılar sayfasına geri dön
     },
     onError: (error) => {
-      alert(`Bir hata oluştu: ${error.message}`);
+      showAlert(`Bir hata oluştu: ${error.message}`);
     },
   });
 
@@ -54,11 +56,11 @@ export default function NewBookingPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId || !selectedCarId || !startDate || !endDate) {
-      alert("Lütfen tüm alanları doldurun.");
+      showAlert("Lütfen tüm alanları doldurun.");
       return;
     }
     if (new Date(endDate) <= new Date(startDate)) {
-      alert("Bitiş tarihi, başlangıç tarihinden sonra olmalıdır.");
+      showAlert("Bitiş tarihi, başlangıç tarihinden sonra olmalıdır.");
       return;
     }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "~/trpc/react";
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 // Tarih objesini 'yyyy-MM-ddThh:mm' formatına çeviren yardımcı fonksiyon
 const formatDateForInput = (date: Date) => {
@@ -19,6 +20,7 @@ export default function EditBookingPage() {
   const router = useRouter();
   const params = useParams();
   const bookingId = Number(params.id);
+  const { showAlert } = useAlert(); // Hook'u çağır
 
   // Form state'leri
   const [startDate, setStartDate] = useState('');
@@ -52,12 +54,12 @@ export default function EditBookingPage() {
   // 4. Rezervasyonu güncelleyecek mutation
   const updateBookingMutation = api.booking.update.useMutation({
     onSuccess: () => {
-      alert("Rezervasyon başarıyla güncellendi!");
+      showAlert("Rezervasyon başarıyla güncellendi!");
       router.push("/admin/manage-bookings");
       router.refresh(); // Liste sayfasının da güncellenmesini tetikle
     },
     onError: (error) => {
-      alert(`Güncelleme hatası: ${error.message}`);
+      showAlert(`Güncelleme hatası: ${error.message}`);
     },
   });
 

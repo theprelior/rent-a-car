@@ -5,40 +5,41 @@
 import { api } from "~/trpc/react";
 import { useState } from "react";
 import { Edit, Trash2, Save, X } from 'lucide-react'; // İkonlar için
+import { useAlert } from '~/context/AlertContext'; // Hook'u import et
 
 export default function AdminLocationsPage() {
   // Mevcut lokasyonları listelemek için tRPC query'si
   const utils = api.useUtils();
   const { data: locations, refetch: refetchLocations } = api.location.getAll.useQuery();
-
+  const { showAlert } = useAlert(); // Hook'u çağır
   const [locationName, setLocationName] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedName, setEditedName] = useState("");
 
   const createLocation = api.location.create.useMutation({
     onSuccess: () => {
-      alert("Lokasyon başarıyla eklendi!");
+      showAlert("Lokasyon başarıyla eklendi!");
       setLocationName("");
       utils.location.getAll.invalidate(); // Cache'i geçersiz kılarak listeyi yenile
     },
-    onError: (error) => alert(`Hata: ${error.message}`),
+    onError: (error) => showAlert(`Hata: ${error.message}`),
   });
 
   const updateLocation = api.location.update.useMutation({
     onSuccess: () => {
-      alert("Lokasyon güncellendi!");
+      showAlert("Lokasyon güncellendi!");
       setEditingId(null);
       utils.location.getAll.invalidate();
     },
-    onError: (error) => alert(`Hata: ${error.message}`),
+    onError: (error) => showAlert(`Hata: ${error.message}`),
   });
 
   const deleteLocation = api.location.delete.useMutation({
     onSuccess: () => {
-      alert("Lokasyon silindi!");
+      showAlert("Lokasyon silindi!");
       utils.location.getAll.invalidate();
     },
-    onError: (error) => alert(`Hata: ${error.message}`),
+    onError: (error) => showAlert(`Hata: ${error.message}`),
   });
 
   const handleAddLocation = (e: React.FormEvent) => {
