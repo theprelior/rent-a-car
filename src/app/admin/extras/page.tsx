@@ -51,7 +51,7 @@ export default function AdminExtrasPage() {
                 <td className="px-4 py-2">₺{Number(extra.price).toLocaleString('tr-TR')}</td>
                 <td className="px-4 py-2">{extra.isDaily ? 'Günlük' : 'Tek Seferlik'}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <Link href={`/admin/extras/edit/${extra.id}`} className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700">
+                  <Link href={`/admin/extras/new/edit/${extra.id}`} className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700">
                     Düzenle
                   </Link>
                   <button onClick={() => handleDelete(extra.id)} disabled={deleteExtraMutation.isPending} className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50">

@@ -38,6 +38,8 @@ model Car {
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
   imageUrl         String?    @map("image_url")
+  previewVideoUrl String?   @map("preview_video_url") // <-- YENİ ALAN
+
   locationId       Int?       @map("location_id")
   bagajSayisi      Int?       @map("bagaj_sayisi") @db.SmallInt
   location         Location?  @relation(fields: [locationId], references: [id])

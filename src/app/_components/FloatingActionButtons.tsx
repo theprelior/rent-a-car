@@ -22,33 +22,51 @@ export function FloatingActionButtons() {
   }
   
   const actions = [
-    { label: 'Telefon', href: 'tel:+90 544 479 85 94', icon: <IconPhone />, bgColor: 'bg-blue-500' },
-    { label: 'Harita', href: 'https://maps.app.goo.gl/A18621wYCBRuP6Yi7?g_st=iwb', icon: <IconMapPin />, bgColor: 'bg-red-500' },
-    { label: 'E-posta', href: 'mailto:rentorarentacar@gmail.com ', icon: <IconMail />, bgColor: 'bg-gray-500' },
-    { label: 'WhatsApp', href: 'https://wa.me/+90 544 479 85 94', icon: <IconWhatsApp />, bgColor: 'bg-green-500' },
+      { label: 'Telefon', href: '/telefon', icon: <IconPhone />, bgColor: 'bg-blue-500', isInternal: true }, 
+    { label: 'Harita', href: 'https://maps.app.goo.gl/A18621wYCBRuP6Yi7?g_st=iwb', icon: <IconMapPin />, bgColor: 'bg-red-500' },
+    { label: 'E-posta', href: 'mailto:rentorarentacar@gmail.com', icon: <IconMail />, bgColor: 'bg-gray-500' },
+    { label: 'WhatsApp', href: 'https://wa.me/905444798594', icon: <IconWhatsApp />, bgColor: 'bg-green-500' }, 
   ];
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
         {/* Diğer baloncuklar (açıkken görünür) */}
         <div className={`flex flex-col items-center gap-3 transition-all duration-300 ease-in-out ${
-            isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}>
-            {actions.map((action) => (
-                <a
+            isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}>
+            {actions.map((action) => {
+              const commonClasses = `flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-110 ${action.bgColor}`;
+              
+              // HATA DÜZELTMESİ: next/link yerine standart <a> etiketi kullanıldı.
+              if (action.isInternal) {
+                return (
+                  <a
                     key={action.label}
                     href={action.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-110 ${action.bgColor}`}
+                    className={commonClasses}
                     aria-label={action.label}
                     title={action.label}
-                >
+                  >
                     {action.icon}
+                  </a>
+                );
+              }
+
+              return (
+                <a
+                  key={action.label}
+                  href={action.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={commonClasses}
+                  aria-label={action.label}
+                  title={action.label}
+                >
+                  {action.icon}
                 </a>
-            ))}
-        </div>
-        
+              );
+            })}
+        </div>
         {/* Ana Buton */}
         <button
             onClick={() => setIsOpen(!isOpen)}

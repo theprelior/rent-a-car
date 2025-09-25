@@ -303,7 +303,8 @@ export function CarDetailView({
                             {extras?.map((extra) => (
                                 <label
                                     key={extra.id}
-                                    className="flex items-center space-x-3 p-3 rounded-md bg-neutral-700/50 hover:bg-neutral-700 cursor-pointer"
+                                    // --- DEĞİŞİKLİK BURADA: 'relative' ve 'group' eklendi ---
+                                    className="relative flex items-center space-x-3 p-3 rounded-md bg-neutral-700/50 hover:bg-neutral-700 cursor-pointer group"
                                 >
                                     <input
                                         type="checkbox"
@@ -318,6 +319,13 @@ export function CarDetailView({
                                             {extra.isDaily ? "/ Günlük" : "/ Tek Seferlik"})
                                         </span>
                                     </span>
+
+                                    {/* --- YENİ EKLENEN KISIM: AÇIKLAMA BALONU (TOOLTIP) --- */}
+                                    {extra.description && (
+                                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden w-64 rounded-md bg-neutral-900 border border-neutral-700 p-2 text-sm text-gray-200 shadow-lg group-hover:block z-50">
+                                            {extra.description}
+                                        </div>
+                                    )}
                                 </label>
                             ))}
                         </div>

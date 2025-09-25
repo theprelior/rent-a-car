@@ -156,6 +156,7 @@ export const carRouter = createTRPCRouter({
         donanimPaketi: z.string().optional(),
         ekstraOzellikler: z.array(z.string()).optional(),
         imageUrl: z.string().nullish(), // .optional() yerine .nullish() kullanıyoruz
+        previewVideoUrl: z.string().nullish(), // <-- YENİ ALAN
 
         locationId: z.number().int().optional(),
       })
@@ -205,6 +206,7 @@ export const carRouter = createTRPCRouter({
         donanimPaketi: z.string().optional(),
         ekstraOzellikler: z.array(z.string()).optional(),
         imageUrl: z.string().nullish(),
+        previewVideoUrl: z.string().nullish(), // <-- YENİ ALAN
         locationId: z.number().int().optional(),
         category: z.nativeEnum(CarCategory).optional(),
       })

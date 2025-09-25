@@ -34,7 +34,7 @@ export default function KiralamaKosullariPage() {
           <section className="rounded-xl bg-neutral-900 p-8 border border-neutral-700/50">
             <SectionTitle title="Sürücü Belgesi ve Kullanım Yaşı" />
             <div className="mt-6 space-y-4 pl-12 text-lg">
-              <p>Araç kiralamak için en az **25 yaşını** doldurmuş olmak ve en az **3 yıllık** sürücü belgesine sahip olmak mecburiyeti vardır.</p>
+              <p>Araç kiralamak için en az **23 yaşını** doldurmuş olmak ve en az **2 yıllık** sürücü belgesine sahip olmak mecburiyeti vardır.</p>
               <p>Kiracı dışında aracın başkası tarafından kullanılabilmesi (ilave sürücü), ancak sürücü belgesi ve kullanım yaşı kurallarına uygun sürücülerin geçerli kimlik ve ehliyetlerinin sözleşmeye kaydı ile mümkündür. Aksi takdirde, kaydı olmayan bir sürücünün yaptığı kazada sigortalar geçersiz sayılır.</p>
             </div>
           </section>
@@ -44,14 +44,14 @@ export default function KiralamaKosullariPage() {
             <div className="mt-6 space-y-4 pl-12 text-lg">
               <p>En kısa kiralama süresi **24 saattir**. Teslim gecikmelerinde her ek saat için günlük ücretin 1/3'ü alınır.</p>
               <p>Toplam 3 saati aşan gecikmelerde tam gün ücreti (o günkü geçerli fiyat üzerinden) tahsil edilir.</p>
-              <p>Uzun süreli (en az 30 gün) kiralamalarda özel fiyatlar uygulanır. Detaylı bilgi için <a href="tel:+905320554481" className="font-semibold text-yellow-400 hover:underline">+90 532 055 44 81</a> numaramızdan bizlere ulaşabilirsiniz.</p>
+              <p>Uzun süreli (en az 30 gün) kiralamalarda özel fiyatlar uygulanır. Detaylı bilgi için <a href="tel:+905444798594 " className="font-semibold text-yellow-400 hover:underline">+90 532 055 44 81</a> numaramızdan bizlere ulaşabilirsiniz.</p>
             </div>
           </section>
 
           <section className="rounded-xl bg-neutral-900 p-8 border border-neutral-700/50">
             <SectionTitle title="Fiyatlara Dahil Olan ve Olmayan Hususlar" />
             <div className="mt-6 space-y-4 pl-12 text-lg">
-              <p><strong className="text-green-400">Dahil Olanlar:</strong> Araçların sınırsız kilometre kullanım hakkı, standart araç bakım giderleri ve kasko (Muafiyetli Kaza Sigortası).</p>
+              <p><strong className="text-green-400">Dahil Olanlar:</strong> Araçların günlük 300 km kilometre kullanım hakkı, standart araç bakım giderleri ve kasko (Muafiyetli Kaza Sigortası).</p>
               <p><strong className="text-red-400">Dahil Olmayanlar:</strong> Yakıt, köprü/otoyol ücretleri (HGS/OGS), trafik cezaları, ek sigortalar (Mini Hasar, LCF vb.), tek yön ücreti, araç teslim etme/alma ücretleri, bebek koltuğu gibi ekstralar ve Katma Değer Vergisi (KDV).</p>
             </div>
           </section>
@@ -73,7 +73,7 @@ export default function KiralamaKosullariPage() {
             <SectionTitle title="Araç Teslimatı ve Yakıt Politikası" />
             <div className="mt-6 space-y-4 pl-12 text-lg">
               <p>Adana ofisimizden 24 saat kesintisiz olarak dilediğiniz gün ve saatte aracınızı teslim alabilirsiniz.</p>
-              <p>Araçlar, **dolu depo** ile teslim edilir ve **dolu depo** ile iade edilmesi beklenir. Eksik yakıtla iade durumunda, eksik yakıt bedeline ek olarak hizmet bedeli yansıtılır.</p>
+              <p>Araçlar, o anki yakıt durumuna göre teslim edilir ve aynı şekilde teslim alınır. Eksik yakıtla iade durumunda, eksik yakıt bedeline ek olarak hizmet bedeli yansıtılır.</p>
             </div>
           </section>
 

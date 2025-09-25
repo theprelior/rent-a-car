@@ -18,7 +18,7 @@ const faqs = [
     },
     {
       question: "Minimum kiralama yaşı ve ehliyet süresi nedir?",
-      answer: "Şirket politikamız gereği, tüm araç grupları için en az 25 yaş ve 3 yıllık ehliyet şartı aranmaktadır."
+      answer: "Şirket politikamız gereği, tüm araç grupları için en az 23 yaş ve 2 yıllık ehliyet şartı aranmaktadır."
     },
     {
       question: "Depozito (provisyon) bedeli ne zaman iade edilir?",
@@ -30,7 +30,7 @@ const faqs = [
     },
     {
       question: "Yakıt politikası nedir?",
-      answer: "Araçlarımız 'Dolu Al / Dolu Bırak' politikası ile kiralanmaktadır. Deposu dolu olarak teslim edilen aracın, yine deposu dolu olarak iade edilmesi beklenir. Eksik yakıt ile iadelerde yakıt ücreti ve hizmet bedeli yansıtılır."
+      answer: "Araçlar, o anki yakıt durumuna göre teslim edilir ve aynı şekilde teslim alınır. Eksik yakıtla iade durumunda, eksik yakıt bedeline ek olarak hizmet bedeli yansıtılır."
     }
 ];
 
