@@ -40,11 +40,13 @@ export function CarCard({ car }: { car: CarWithDetails }) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
-          {/* Önizleme Videosu (sadece hover durumunda ve video varsa görünür) */}
+         {/* Önizleme Videosu */}
           {isHovered && car.previewVideoUrl && (
             <video
-              key={car.id} // Hoverdan sonra videonun baştan başlaması için
-              src={car.previewVideoUrl}
+              key={car.id}
+              // --- DEĞİŞİKLİK BURADA: Videonun adresi de tam URL olmalı ---
+              src={car.previewVideoUrl ? `${process.env.NEXT_PUBLIC_APP_URL}${car.previewVideoUrl}` : undefined}
+              // -----------------------------------------------------------
               autoPlay
               loop
               muted
