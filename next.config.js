@@ -13,10 +13,12 @@ const config = {
             {
                 protocol: 'https',
                 hostname: 'www.rentoracar.com',
+                pathname: '/uploads/**',
             },
             {
                 protocol: 'https',
                 hostname: 'rentoracar.com',
+                pathname: '/uploads/**',
             },
         ],
     },
