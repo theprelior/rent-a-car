@@ -33,11 +33,10 @@ export function CarCard({ car }: { car: CarWithDetails }) {
       <Link href={`/cars/${car.id.toString()}`} className="block">
         <div className="relative w-full aspect-[4/3] bg-neutral-800"> {/* bg-black yerine bg-neutral-800 */}
           {/* Ana Resim (her zaman altta durur) */}
-          <Image
+          <img
             src={car.imageUrl ?? '/placeholder.png'}
             alt={`${car.marka} ${car.model}`}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
           {/* Önizleme Videosu (sadece hover durumunda ve video varsa görünür) */}
