@@ -5,9 +5,19 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { YakitTuru, VitesTuru, KasaTipi, CekisTipi, Durum, CarCategory, type Car, type PricingTier } from "@prisma/client";
-import Image from "next/image";
+import Image, { type ImageLoaderProps } from "next/image";
 import { useRouter } from "next/navigation";
 import { useAlert } from '~/context/AlertContext'; // Hook'u import et
+
+
+
+const customImageLoader = ({ src, width, quality }: ImageLoaderProps) => {
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+  // Next.js'in beklediği 'width' ve 'quality' parametrelerini alıyoruz
+  // ama bizim basit senaryomuzda sadece 'src' kullanmamız yeterli.
+  return `${APP_URL}${src}`;
+};
+
 
 // Sunucudan gelen ve serialize edilmiş araç verisinin tipi
 export type PlainCar = Omit<Car, 'id' | 'basePrice' | 'motorHacmi' | 'pricingTiers'> & {
@@ -59,7 +69,7 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
   ]);
   const isEditMode = !!initialData;
 
-   const handlePreviewVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePreviewVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setPreviewVideoFile(e.target.files[0] || null);
     }
@@ -164,19 +174,19 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
       }
     }
     if (previewVideoFile) {
-        const formData = new FormData();
-        formData.append('file', previewVideoFile);
-        try {
-            // Mevcut video yükleme API'nizi kullanıyoruz
-            const response = await fetch('/api/upload-video', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error('Önizleme videosu yüklenemedi.');
-            const newBlob = await response.json() as { url: string };
-            previewVideoUrl = newBlob.url;
-        } catch (error) {
-            console.error(error);
-            showAlert("Önizleme videosu yüklenirken bir hata oluştu.");
-            return;
-        }
+      const formData = new FormData();
+      formData.append('file', previewVideoFile);
+      try {
+        // Mevcut video yükleme API'nizi kullanıyoruz
+        const response = await fetch('/api/upload-video', { method: 'POST', body: formData });
+        if (!response.ok) throw new Error('Önizleme videosu yüklenemedi.');
+        const newBlob = await response.json() as { url: string };
+        previewVideoUrl = newBlob.url;
+      } catch (error) {
+        console.error(error);
+        showAlert("Önizleme videosu yüklenirken bir hata oluştu.");
+        return;
+      }
     }
 
 
@@ -200,7 +210,7 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         dailyRate: Number(tier.dailyRate),
       })),
       basePrice: Number(formData.basePrice), // <-- YENİ
- 
+
     };
 
     if (isEditMode && initialData) {
@@ -228,7 +238,14 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
             {isEditMode && initialData?.imageUrl && (
               <div className="mb-4">
                 <p className="text-sm text-gray-400 mb-2">Mevcut Resim:</p>
-                <Image src={initialData.imageUrl} alt="Mevcut araç resmi" width={150} height={100} className="rounded-md object-cover" />
+                <Image
+                  loader={customImageLoader}
+                  src={initialData.imageUrl}
+                  alt="Mevcut araç resmi"
+                  width={150}
+                  height={100}
+                  className="rounded-md object-cover"
+                />
               </div>
             )}
             <input id="car-image" type="file" onChange={handleFileChange} accept="image/*" className="input-style" />
@@ -237,11 +254,11 @@ export function AddCarForm({ initialData }: AddCarFormProps) {
         </div>
         <div className="col-span-full">
           <FormField label="Önizleme Videosu (Max 5-10sn, Sessiz Oynar)">
-            <input 
-              type="file" 
-              onChange={handlePreviewVideoFileChange} 
-              accept="video/mp4,video/webm" 
-              className="input-style" 
+            <input
+              type="file"
+              onChange={handlePreviewVideoFileChange}
+              accept="video/mp4,video/webm"
+              className="input-style"
             />
             {isEditMode && initialData?.previewVideoUrl && (
               <p className="text-xs text-gray-500 mt-2">

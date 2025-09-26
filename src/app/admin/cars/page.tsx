@@ -1,9 +1,18 @@
 "use client"; // <-- 1. Sayfayı Client Component yapıyoruz
 
 import Link from "next/link";
-import Image from "next/image";
+import Image, { type ImageLoaderProps } from "next/image"; 
 import { api } from "~/trpc/react"; // <-- 2. 'react' importunu kullanıyoruz
 import { useAlert } from '~/context/AlertContext'; // Hook'u import et
+
+
+const customImageLoader = ({ src, width, quality }: ImageLoaderProps) => {
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+  // Next.js'in beklediği 'width' ve 'quality' parametrelerini alıyoruz
+  // ama bizim basit senaryomuzda sadece 'src' kullanmamız yeterli.
+  return `${APP_URL}${src}`;
+};
+
 
 export default function AdminCarsPage() {
   // 3. Veriyi useQuery hook'u ile çekiyoruz
@@ -51,13 +60,16 @@ export default function AdminCarsPage() {
               <tr key={car.id.toString()} className="border-b border-gray-700 hover:bg-gray-600">
                 <td className="px-4 py-2">
                   <div className="relative h-12 w-20">
-                    <Image
-                      src={car.imageUrl ?? '/car-placeholder.png'}
-                      alt={`${car.marka} ${car.model}`}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-md"
-                    />
+                     <Image
+                              // --- YENİ ADIM 2: 'loader' prop'unu doğrudan ekliyoruz ---
+                              loader={customImageLoader}
+                              // src'den ortam değişkenini kaldırıyoruz, loader bunu halledecek.
+                              src={car.imageUrl ? car.imageUrl : '/placeholder.png'}
+                              alt={`${car.marka} ${car.model}`}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
                   </div>
                 </td>
                 <td className="px-4 py-2">{car.marka}</td>
