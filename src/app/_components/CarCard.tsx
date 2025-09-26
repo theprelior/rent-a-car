@@ -34,7 +34,7 @@ export function CarCard({ car }: { car: CarWithDetails }) {
         <div className="relative w-full aspect-[4/3] bg-neutral-800"> {/* bg-black yerine bg-neutral-800 */}
           {/* Ana Resim (her zaman altta durur) */}
           <Image
-            src={car.imageUrl ?? '/placeholder.png'}
+            src={car.imageUrl ? `${process.env.NEXT_PUBLIC_APP_URL}${car.imageUrl}` : '/placeholder.png'}
             alt={`${car.marka} ${car.model}`}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
