@@ -2,8 +2,7 @@
 import Image, { type ImageLoaderProps } from "next/image";
 import Link from "next/link";
 import { type Car, type PricingTier, type Booking } from "@prisma/client";
-import { useState } from "react";
-import { Sree_Krushnadevaraya } from "next/font/google";
+import { useState, useEffect, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 
 // Tip tanımını güncelliyoruz
@@ -11,6 +10,25 @@ type CarWithDetails = Car & {
   pricingTiers: PricingTier[];
   bookings: Booking[];
   previewVideoUrl?: string | null; // <-- BU SATIRI EKLEYİN
+};
+
+
+// --- YENİ ADIM 1: Mobil cihaz tespiti için bir custom hook oluşturuyoruz ---
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Bu kod sadece tarayıcıda çalışır, sunucu tarafında çalışmaz
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const handleResize = () => setIsMobile(mediaQuery.matches);
+
+    handleResize(); // İlk yüklemede kontrol et
+    window.addEventListener("resize", handleResize); // Ekran boyutu değiştikçe dinle
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return isMobile;
 };
 
 const customImageLoader = ({ src, width, quality }: ImageLoaderProps) => {
@@ -21,7 +39,7 @@ const customImageLoader = ({ src, width, quality }: ImageLoaderProps) => {
 };
 type CarWithPreview = Car & { previewVideoUrl?: string | null };
 
-export function CarCard({ car }: { car: CarWithDetails }) {
+export function CarCard({ car, isActive = false }: { car: CarWithDetails, isActive?: boolean }) {
   // En düşük günlük fiyatı bulmak için bir mantık ekleyelim
   // Bu, "Fiyatlar ...'dan başlıyor" demek için kullanılır.
   const startingPrice = car.pricingTiers.reduce((min, tier) => {
@@ -30,18 +48,34 @@ export function CarCard({ car }: { car: CarWithDetails }) {
   }, Number(car.basePrice)); // Başlangıç olarak basePrice'ı al
   const isCurrentlyBooked = car.bookings && car.bookings.length > 0;
   const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isMobile = useIsMobile(); // Cihazın mobil olup olmadığını öğreniyoruz
 
-    const { ref, inView } = useInView({
+  const { ref, inView } = useInView({
     threshold: 0.3, // kartın %30'u görünürse aktif olur
     triggerOnce: false,
   });
+
+
+    const shouldPlayVideo = (isHovered || (isMobile && isActive)) && inView;
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (shouldPlayVideo) {
+        videoRef.current.play().catch(error => console.error("Video Oynatılamadı:", error));
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [shouldPlayVideo]); // Bu efekt, oynatma durumu değiştiğinde çalışacak
+
   return (
 
-   <div ref={ref}
-  className="flex h-full flex-col overflow-hidden rounded-xl bg-neutral-900 shadow-lg transition-transform duration-300 hover:scale-105 border border-neutral-800 group will-change-transform will-change-opacity"
-  onMouseEnter={() => setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
->
+    <div ref={ref}
+      className="flex h-full flex-col overflow-hidden rounded-xl bg-neutral-900 shadow-lg transition-transform duration-300 hover:scale-105 border border-neutral-800 group will-change-transform will-change-opacity"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Link href={`/cars/${car.id.toString()}`} className="block">
         <div className="relative w-full aspect-[4/3] bg-neutral-800"> {/* bg-black yerine bg-neutral-800 */}
           {/* Ana Resim (her zaman altta durur) */}
@@ -67,9 +101,8 @@ export function CarCard({ car }: { car: CarWithDetails }) {
               muted
               playsInline
               preload="metadata"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-                isHovered ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"
+                }`}
             />
           )}
           {/* YENİ: "Kullanımda" şeridi */}

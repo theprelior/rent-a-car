@@ -1,11 +1,13 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type ImageLoaderProps } from "next/image";
 import Link from "next/link";
 import { type Car, type PricingTier, type Location } from "@prisma/client";
 import { Fuel, Users, Briefcase, Settings } from "lucide-react";
 
-
+const customImageLoader = ({ src }: ImageLoaderProps): string => {
+  return `${process.env.NEXT_PUBLIC_APP_URL || ""}${src}`;
+};
 
 type CarWithDetails = Car & {
   pricingTiers: PricingTier[];
@@ -40,7 +42,13 @@ export function FilteredCarCard({ car, rentalDays, startDate, endDate }: Filtere
       {/* 1. Sütun: Resim */}
       <div className="col-span-12 md:col-span-3">
         <div className="relative h-48 w-full overflow-hidden rounded-lg">
-          <Image src={car.imageUrl ?? '/car-placeholder.png'} alt={`${car.marka} ${car.model}`} layout="fill" objectFit="cover" />
+            <Image
+            loader={customImageLoader}
+            src={car.imageUrl ?? "/car-placeholder.png"}
+            alt={`${car.marka} ${car.model}`}
+            fill
+            className="object-cover"
+          />
         </div>
       </div>
 

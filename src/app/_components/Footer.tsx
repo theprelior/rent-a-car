@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Phone, Mail, MapPin } from "lucide-react"; // lucide-react ikonlarını kullanıyoruz
-import Image from "next/image"; // <-- 1. Image bileşenini import et
 
 export function Footer() {
   const pathname = usePathname();
