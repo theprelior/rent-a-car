@@ -9,19 +9,8 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
     images: {
-        remotePatterns: [
-            {
-                protocol: 'https',
-                hostname: 'www.rentoracar.com',
-                pathname: '/uploads/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'rentoracar.com',
-                pathname: '/uploads/**',
-            },
-        ],
-         unoptimized: true,
+        // Loader'ı "custom" olarak ayarlıyoruz.
+        loader: 'custom',
     },
 };
 
