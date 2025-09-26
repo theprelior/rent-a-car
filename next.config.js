@@ -7,6 +7,10 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    images: {
+        domains: ["rentoracar.com", "www.rentoracar.com"],
+    },
+};
 
 export default config;
