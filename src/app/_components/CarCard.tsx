@@ -86,8 +86,10 @@ export function CarCard({ car, isActive = false }: { car: CarWithDetails, isActi
             src={car.imageUrl ? car.imageUrl : '/placeholder.png'}
             alt={`${car.marka} ${car.model}`}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className={`object-cover transition-all duration-300 ${
+            shouldPlayVideo ? 'opacity-0' : 'opacity-100 group-hover:scale-105'
+          }`}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
 
 
@@ -101,8 +103,10 @@ export function CarCard({ car, isActive = false }: { car: CarWithDetails, isActi
               muted
               playsInline
               preload="metadata"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"
-                }`}
+              // --- DEĞİŞİKLİK 2: Videonun opacity'sini doğru değişkene bağlıyoruz ---
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+              shouldPlayVideo ? "opacity-100" : "opacity-0"
+            }`}
             />
           )}
           {/* YENİ: "Kullanımda" şeridi */}

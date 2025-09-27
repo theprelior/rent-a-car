@@ -26,7 +26,7 @@ type PropType = {
 export function FeaturedCars({ cars, options }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { ...options, loop: cars.length > 2 },
-    [Autoplay({ delay: 4000, stopOnInteraction: false })]
+    [Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })] 
   );
 
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
