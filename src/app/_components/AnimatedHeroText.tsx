@@ -59,8 +59,8 @@ export function AnimatedHeroText() {
   };
 
   return (
-<div className="relative flex h-48 w-full flex-col items-center justify-center text-center">
-      
+    <div className="relative flex h-48 w-full flex-col items-center justify-center text-center">
+
       {/* Aşama 1: RENTORA animasyonu */}
       <motion.div
         // DÜZELTME: `items-center` ile dikey hizalamayı sağlıyoruz
@@ -98,7 +98,7 @@ export function AnimatedHeroText() {
       >
         <h1 className="text-5xl font-extrabold tracking-tighter text-white md:text-8xl">
           Yola Çık,{" "}
-          <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent inline-block px-1 leading-normal">
             Yol Açık
           </span>
         </h1>
